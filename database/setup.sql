@@ -1,4 +1,4 @@
--- Script de configuración inicial de la base de datos
+-- Script de configuración inicial de la base de datos 
 -- Ejecutar en el SQL Editor de Supabase
 
 -- Tabla de usuarios
