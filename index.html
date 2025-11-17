@@ -54,6 +54,13 @@
         .stat-card:hover {
             transform: translateY(-5px);
         }
+        .filter-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -180,17 +187,44 @@
                     <!-- Dashboard Section -->
                     <div id="dashboard-section">
                         <h2 class="mb-4">Dashboard</h2>
+                        
+                        <!-- Filtros -->
+                        <div class="filter-section">
+                            <h5 class="mb-3">Filtros</h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="filter-start-date" class="form-label">Fecha Inicio</label>
+                                    <input type="date" class="form-control" id="filter-start-date">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="filter-end-date" class="form-label">Fecha Fin</label>
+                                    <input type="date" class="form-control" id="filter-end-date">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="filter-spa" class="form-label">Spa</label>
+                                    <select class="form-select" id="filter-spa">
+                                        <option value="all">Todos los Spas</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-3 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                        <i class="bi bi-funnel me-1"></i> Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-3 mb-3">
                                 <div class="card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h5 class="card-title text-muted">Sesiones Hoy</h5>
-                                                <h3 class="text-primary" id="today-sessions">0</h3>
+                                                <h5 class="card-title text-muted">Horas Totales</h5>
+                                                <h3 class="text-primary" id="total-hours">0</h3>
                                             </div>
                                             <div class="align-self-center">
-                                                <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                                                <i class="bi bi-clock fs-1 text-primary"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -201,8 +235,8 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h5 class="card-title text-muted">Ingresos Hoy</h5>
-                                                <h3 class="text-success" id="today-revenue">€0.00</h3>
+                                                <h5 class="card-title text-muted">Total con IVA</h5>
+                                                <h3 class="text-success" id="total-revenue">€0.00</h3>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="bi bi-currency-euro fs-1 text-success"></i>
@@ -216,11 +250,11 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h5 class="card-title text-muted">Sesiones Mes</h5>
-                                                <h3 class="text-info" id="month-sessions">0</h3>
+                                                <h5 class="card-title text-muted">Base Imponible</h5>
+                                                <h3 class="text-info" id="base-amount">€0.00</h3>
                                             </div>
                                             <div class="align-self-center">
-                                                <i class="bi bi-graph-up fs-1 text-info"></i>
+                                                <i class="bi bi-receipt fs-1 text-info"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -231,11 +265,11 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between">
                                             <div>
-                                                <h5 class="card-title text-muted">Ingresos Mes</h5>
-                                                <h3 class="text-warning" id="month-revenue">€0.00</h3>
+                                                <h5 class="card-title text-muted">IVA (21%)</h5>
+                                                <h3 class="text-warning" id="tax-amount">€0.00</h3>
                                             </div>
                                             <div class="align-self-center">
-                                                <i class="bi bi-piggy-bank fs-1 text-warning"></i>
+                                                <i class="bi bi-percent fs-1 text-warning"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -287,27 +321,12 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-client" class="form-label">Cliente</label>
-                                            <input type="text" class="form-control" id="session-client" placeholder="Nombre del cliente" required>
+                                            <label for="session-total-hours" class="form-label">Horas Totales del Día</label>
+                                            <input type="number" class="form-control" id="session-total-hours" min="0" max="24" step="0.5" placeholder="Horas trabajadas hoy" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-duration" class="form-label">Duración (minutos)</label>
-                                            <input type="number" class="form-control" id="session-duration" value="60" min="30" step="30" required>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="session-type" class="form-label">Tipo de Masaje</label>
-                                            <select class="form-select" id="session-type" required>
-                                                <option value="tradicional">Tradicional Tailandés</option>
-                                                <option value="aceite">Masaje con Aceite</option>
-                                                <option value="piedras">Masaje con Piedras Calientes</option>
-                                                <option value="pies">Masaje de Pies</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="session-price" class="form-label">Precio (€)</label>
-                                            <input type="number" class="form-control" id="session-price" step="0.01" required>
+                                            <label for="session-price" class="form-label">Precio por Hora (€)</label>
+                                            <input type="number" class="form-control" id="session-price" step="0.01" readonly>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -330,11 +349,10 @@
                                         <thead>
                                             <tr>
                                                 <th>Fecha</th>
-                                                <th>Cliente</th>
                                                 <th>Spa</th>
-                                                <th>Tipo</th>
-                                                <th>Duración</th>
-                                                <th>Precio</th>
+                                                <th>Horas</th>
+                                                <th>Precio/Hora</th>
+                                                <th>Total</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -361,6 +379,16 @@
                                         <div class="col-md-6 mb-3">
                                             <label for="profile-email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="profile-email" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profile-password" class="form-label">Nueva Contraseña</label>
+                                            <input type="password" class="form-control" id="profile-password" placeholder="Dejar en blanco para no cambiar">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profile-confirm-password" class="form-label">Confirmar Nueva Contraseña</label>
+                                            <input type="password" class="form-control" id="profile-confirm-password" placeholder="Confirmar nueva contraseña">
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -419,6 +447,12 @@
                         <h2 class="mb-4">Gestión de Usuarios</h2>
                         <div class="card">
                             <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5 class="card-title">Lista de Usuarios</h5>
+                                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                                        <i class="bi bi-plus-circle me-1"></i> Agregar Usuario
+                                    </button>
+                                </div>
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
@@ -445,6 +479,95 @@
     </div>
 
     <!-- Modals -->
+    <!-- Add Spa Modal -->
+    <div class="modal fade" id="addSpaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nuevo Spa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-spa-form">
+                        <div class="mb-3">
+                            <label for="spa-name" class="form-label">Nombre del Spa</label>
+                            <input type="text" class="form-control" id="spa-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-address" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="spa-address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-phone" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="spa-phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
+                            <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addSpa()">Guardar Spa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nuevo Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-user-form">
+                        <div class="mb-3">
+                            <label for="add-user-name" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="add-user-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-user-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="add-user-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-user-password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="add-user-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-user-role" class="form-label">Rol</label>
+                            <select class="form-select" id="add-user-role" required>
+                                <option value="user">Usuario</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Spas Asignados</label>
+                            <div id="add-user-spas-checkboxes">
+                                <!-- Las opciones de spas se cargarán aquí -->
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add-user-status" class="form-label">Estado</label>
+                            <select class="form-select" id="add-user-status" required>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                                <option value="pending">Pendiente de Aprobación</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addUser()">Guardar Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit User Modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog">
@@ -495,42 +618,6 @@
         </div>
     </div>
 
-    <!-- Add Spa Modal -->
-    <div class="modal fade" id="addSpaModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Agregar Nuevo Spa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-spa-form">
-                        <div class="mb-3">
-                            <label for="spa-name" class="form-label">Nombre del Spa</label>
-                            <input type="text" class="form-control" id="spa-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-address" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="spa-address" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-phone" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="spa-phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
-                            <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="addSpa()">Guardar Spa</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Estado de la aplicación
@@ -541,6 +628,11 @@
         let sessions = [];
         let revenueChart = null;
         let spaChart = null;
+        let currentFilters = {
+            startDate: null,
+            endDate: null,
+            spa: 'all'
+        };
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -642,15 +734,12 @@
                 return;
             }
             
-            // En una aplicación real, esto haría una llamada a la API
-            // Por ahora, simulamos la autenticación
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             console.log('Usuarios en sistema:', users);
             
             const user = users.find(u => u.email === email && u.password === password);
             
             if (user) {
-                // Verificar si el usuario está activo
                 if (user.status !== 'active') {
                     alert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.');
                     return;
@@ -687,11 +776,8 @@
                 return;
             }
             
-            // En una aplicación real, esto haría una llamada a la API
-            // Por ahora, guardamos en localStorage
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
-            // Verificar si el usuario ya existe
             if (users.find(u => u.email === email)) {
                 alert('Ya existe un usuario con este email');
                 return;
@@ -703,7 +789,7 @@
                 email: email,
                 password: password,
                 role: 'user',
-                status: 'pending', // Nuevo estado: pendiente de aprobación
+                status: 'pending',
                 spas: [],
                 createdAt: new Date().toISOString()
             };
@@ -729,10 +815,8 @@
             document.getElementById('auth-screen').classList.add('d-none');
             document.getElementById('app-screen').classList.remove('d-none');
             
-            // Mostrar nombre de usuario
             document.getElementById('user-name').textContent = currentUser.name;
             
-            // Mostrar badge de admin si corresponde
             const userBadge = document.getElementById('user-badge');
             if (currentUser.role === 'admin') {
                 userBadge.classList.remove('d-none');
@@ -742,13 +826,11 @@
                 document.getElementById('admin-menu').classList.add('d-none');
             }
             
-            // Cargar datos
             loadUserSpas();
             loadAllSpas();
             loadAllUsers();
             loadSessions();
             
-            // Mostrar dashboard por defecto
             showSection('dashboard');
             
             console.log('Aplicación inicializada correctamente');
@@ -758,12 +840,10 @@
         function showSection(sectionName) {
             console.log('Mostrando sección:', sectionName);
             
-            // Ocultar todas las secciones
             document.querySelectorAll('[id$="-section"]').forEach(section => {
                 section.classList.add('d-none');
             });
             
-            // Mostrar la sección seleccionada
             const sectionElement = document.getElementById(`${sectionName}-section`);
             if (sectionElement) {
                 sectionElement.classList.remove('d-none');
@@ -771,7 +851,6 @@
                 console.error('Sección no encontrada:', sectionName);
             }
             
-            // Actualizar navegación activa
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
@@ -781,9 +860,9 @@
                 activeLink.classList.add('active');
             }
             
-            // Cargar datos específicos de la sección
             if (sectionName === 'dashboard') {
                 loadDashboardData();
+                loadFilterOptions();
             } else if (sectionName === 'sessions') {
                 loadSessionForm();
             } else if (sectionName === 'history') {
@@ -803,8 +882,6 @@
 
         // Gestión de Spas
         function loadUserSpas() {
-            // En una aplicación real, esto haría una llamada a la API
-            // Por ahora, cargamos desde localStorage
             const allSpasData = JSON.parse(localStorage.getItem('spas') || '[]');
             
             if (currentUser.role === 'admin') {
@@ -840,44 +917,122 @@
             console.log('Sesiones cargadas:', sessions.length);
         }
 
+        // Dashboard - Filtros
+        function loadFilterOptions() {
+            const filterSpaSelect = document.getElementById('filter-spa');
+            filterSpaSelect.innerHTML = '<option value="all">Todos los Spas</option>';
+            
+            allSpas.forEach(spa => {
+                const option = document.createElement('option');
+                option.value = spa.id;
+                option.textContent = spa.name;
+                filterSpaSelect.appendChild(option);
+            });
+            
+            // Establecer fechas por defecto (últimos 30 días)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            document.getElementById('filter-start-date').value = startDate.toISOString().split('T')[0];
+            document.getElementById('filter-end-date').value = endDate.toISOString().split('T')[0];
+            
+            currentFilters.startDate = startDate.toISOString().split('T')[0];
+            currentFilters.endDate = endDate.toISOString().split('T')[0];
+        }
+
+        function applyFilters() {
+            const startDate = document.getElementById('filter-start-date').value;
+            const endDate = document.getElementById('filter-end-date').value;
+            const spa = document.getElementById('filter-spa').value;
+            
+            currentFilters = {
+                startDate: startDate,
+                endDate: endDate,
+                spa: spa
+            };
+            
+            loadDashboardData();
+        }
+
+        function getFilteredSessions() {
+            let filteredSessions = [...sessions];
+            
+            // Filtrar por fecha
+            if (currentFilters.startDate) {
+                filteredSessions = filteredSessions.filter(session => 
+                    session.date >= currentFilters.startDate
+                );
+            }
+            
+            if (currentFilters.endDate) {
+                filteredSessions = filteredSessions.filter(session => 
+                    session.date <= currentFilters.endDate
+                );
+            }
+            
+            // Filtrar por spa
+            if (currentFilters.spa && currentFilters.spa !== 'all') {
+                filteredSessions = filteredSessions.filter(session => 
+                    session.spaId === currentFilters.spa
+                );
+            }
+            
+            return filteredSessions;
+        }
+
         // Dashboard
         function loadDashboardData() {
             console.log('Cargando dashboard...');
             
+            const filteredSessions = getFilteredSessions();
+            
             // Calcular estadísticas
-            const today = new Date().toISOString().split('T')[0];
-            const thisMonth = new Date().getMonth();
-            const thisYear = new Date().getFullYear();
+            const totalHours = filteredSessions.reduce((sum, session) => 
+                sum + parseFloat(session.totalHours || 0), 0
+            );
             
-            const todaySessions = sessions.filter(s => s.date === today);
-            const monthSessions = sessions.filter(s => {
-                const sessionDate = new Date(s.date);
-                return sessionDate.getMonth() === thisMonth && sessionDate.getFullYear() === thisYear;
-            });
+            const totalRevenue = filteredSessions.reduce((sum, session) => 
+                sum + parseFloat(session.totalAmount || 0), 0
+            );
             
-            const todayRevenue = todaySessions.reduce((sum, session) => sum + parseFloat(session.price), 0);
-            const monthRevenue = monthSessions.reduce((sum, session) => sum + parseFloat(session.price), 0);
+            // Calcular base imponible e IVA (21%)
+            const taxRate = 0.21;
+            const baseAmount = totalRevenue / (1 + taxRate);
+            const taxAmount = totalRevenue - baseAmount;
             
             // Actualizar estadísticas
-            document.getElementById('today-sessions').textContent = todaySessions.length;
-            document.getElementById('today-revenue').textContent = `€${todayRevenue.toFixed(2)}`;
-            document.getElementById('month-sessions').textContent = monthSessions.length;
-            document.getElementById('month-revenue').textContent = `€${monthRevenue.toFixed(2)}`;
+            document.getElementById('total-hours').textContent = totalHours.toFixed(1);
+            document.getElementById('total-revenue').textContent = `€${totalRevenue.toFixed(2)}`;
+            document.getElementById('base-amount').textContent = `€${baseAmount.toFixed(2)}`;
+            document.getElementById('tax-amount').textContent = `€${taxAmount.toFixed(2)}`;
             
             // Crear gráficos
-            createRevenueChart();
-            createSpaChart();
+            createRevenueChart(filteredSessions);
+            createSpaChart(filteredSessions);
         }
 
-        function createRevenueChart() {
+        function createRevenueChart(filteredSessions) {
             const ctx = document.getElementById('revenueChart').getContext('2d');
             
-            // Datos de ejemplo para el gráfico de ingresos
+            // Agrupar por mes
+            const monthlyData = {};
+            filteredSessions.forEach(session => {
+                const month = session.date.substring(0, 7); // YYYY-MM
+                if (!monthlyData[month]) {
+                    monthlyData[month] = 0;
+                }
+                monthlyData[month] += parseFloat(session.totalAmount || 0);
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            const data = labels.map(month => monthlyData[month]);
+            
             const revenueData = {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                labels: labels,
                 datasets: [{
                     label: 'Ingresos (€)',
-                    data: [1200, 1900, 1500, 2100, 1800, 2400, 2200, 2600, 2300, 2800, 2500, 3000],
+                    data: data,
                     borderColor: '#8B4513',
                     backgroundColor: 'rgba(139, 69, 19, 0.1)',
                     tension: 0.4,
@@ -897,24 +1052,32 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                        },
-                        title: {
-                            display: false
                         }
                     }
                 }
             });
         }
 
-        function createSpaChart() {
+        function createSpaChart(filteredSessions) {
             const ctx = document.getElementById('spaChart').getContext('2d');
             
-            // Datos de ejemplo para el gráfico de spas
-            const spaData = {
-                labels: ['Thai Spa Central', 'Zen Thai Massage', 'Spa Oriental', 'Massage Palace'],
+            // Agrupar por spa
+            const spaData = {};
+            filteredSessions.forEach(session => {
+                if (!spaData[session.spaName]) {
+                    spaData[session.spaName] = 0;
+                }
+                spaData[session.spaName]++;
+            });
+            
+            const labels = Object.keys(spaData);
+            const data = Object.values(spaData);
+            
+            const chartData = {
+                labels: labels,
                 datasets: [{
                     label: 'Sesiones',
-                    data: [12, 19, 8, 15],
+                    data: data,
                     backgroundColor: [
                         'rgba(139, 69, 19, 0.8)',
                         'rgba(210, 105, 30, 0.8)',
@@ -937,7 +1100,7 @@
             
             spaChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: spaData,
+                data: chartData,
                 options: {
                     responsive: true,
                     plugins: {
@@ -956,7 +1119,7 @@
             const spaSelect = document.getElementById('session-spa');
             spaSelect.innerHTML = '<option value="">Seleccionar spa</option>';
             
-            // Llenar select de spas
+            // Llenar select de spas con los spas del usuario
             userSpas.forEach(spa => {
                 const option = document.createElement('option');
                 option.value = spa.id;
@@ -967,11 +1130,13 @@
             // Establecer fecha actual por defecto
             document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
             
-            // Establecer precio base cuando se selecciona un spa
+            // Establecer precio por hora cuando se selecciona un spa
             spaSelect.addEventListener('change', function() {
                 const selectedSpa = userSpas.find(spa => spa.id === this.value);
                 if (selectedSpa) {
                     document.getElementById('session-price').value = selectedSpa.basePrice;
+                } else {
+                    document.getElementById('session-price').value = '';
                 }
             });
             
@@ -979,34 +1144,40 @@
             if (userSpas.length > 0) {
                 spaSelect.value = userSpas[0].id;
                 document.getElementById('session-price').value = userSpas[0].basePrice;
+            } else {
+                console.warn('No hay spas disponibles para este usuario');
             }
+            
+            // Limpiar otros campos
+            document.getElementById('session-total-hours').value = '';
+            document.getElementById('session-notes').value = '';
         }
 
         function saveSession() {
             const spaId = document.getElementById('session-spa').value;
             const date = document.getElementById('session-date').value;
-            const client = document.getElementById('session-client').value;
-            const duration = document.getElementById('session-duration').value;
-            const type = document.getElementById('session-type').value;
-            const price = document.getElementById('session-price').value;
+            const totalHours = document.getElementById('session-total-hours').value;
+            const pricePerHour = document.getElementById('session-price').value;
             const notes = document.getElementById('session-notes').value;
             
-            if (!spaId || !date || !client || !duration || !type || !price) {
+            if (!spaId || !date || !totalHours || !pricePerHour) {
                 alert('Por favor completa todos los campos obligatorios');
                 return;
             }
             
             const selectedSpa = userSpas.find(spa => spa.id === spaId);
             
+            // Calcular total (horas * precio por hora)
+            const totalAmount = parseFloat(totalHours) * parseFloat(pricePerHour);
+            
             const newSession = {
                 id: generateId(),
                 spaId: spaId,
                 spaName: selectedSpa.name,
                 date: date,
-                client: client,
-                duration: parseInt(duration),
-                type: type,
-                price: parseFloat(price),
+                totalHours: parseFloat(totalHours),
+                pricePerHour: parseFloat(pricePerHour),
+                totalAmount: totalAmount,
                 notes: notes,
                 userId: currentUser.id,
                 userName: currentUser.name,
@@ -1022,17 +1193,22 @@
             loadSessions();
             
             // Limpiar formulario
-            document.getElementById('session-form').reset();
-            
-            // Restablecer valores por defecto
-            document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('session-duration').value = 60;
-            if (userSpas.length > 0) {
-                document.getElementById('session-spa').value = userSpas[0].id;
-                document.getElementById('session-price').value = userSpas[0].basePrice;
-            }
+            resetSessionForm();
             
             alert('Sesión registrada exitosamente');
+        }
+
+        function resetSessionForm() {
+            document.getElementById('session-form').reset();
+            document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('session-price').value = '';
+            
+            // Si hay spas disponibles, seleccionar el primero
+            const spaSelect = document.getElementById('session-spa');
+            if (userSpas.length > 0) {
+                spaSelect.value = userSpas[0].id;
+                document.getElementById('session-price').value = userSpas[0].basePrice;
+            }
         }
 
         // Historial
@@ -1042,34 +1218,22 @@
             const tableBody = document.getElementById('history-table-body');
             tableBody.innerHTML = '';
             
-            // Ordenar sesiones por fecha (más recientes primero)
             const sortedSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
             
             if (sortedSessions.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No hay sesiones registradas</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay sesiones registradas</td></tr>';
                 return;
             }
             
             sortedSessions.forEach(session => {
                 const row = document.createElement('tr');
                 
-                // Determinar tipo de masaje
-                let typeText = '';
-                switch(session.type) {
-                    case 'tradicional': typeText = 'Tradicional Tailandés'; break;
-                    case 'aceite': typeText = 'Masaje con Aceite'; break;
-                    case 'piedras': typeText = 'Masaje con Piedras Calientes'; break;
-                    case 'pies': typeText = 'Masaje de Pies'; break;
-                    default: typeText = session.type;
-                }
-                
                 row.innerHTML = `
                     <td>${formatDate(session.date)}</td>
-                    <td>${session.client}</td>
                     <td>${session.spaName}</td>
-                    <td>${typeText}</td>
-                    <td>${session.duration} min</td>
-                    <td>€${parseFloat(session.price).toFixed(2)}</td>
+                    <td>${session.totalHours} h</td>
+                    <td>€${parseFloat(session.pricePerHour).toFixed(2)}/h</td>
+                    <td>€${parseFloat(session.totalAmount).toFixed(2)}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteSession('${session.id}')">
                             <i class="bi bi-trash"></i>
@@ -1087,7 +1251,6 @@
                 const updatedSessions = sessionsData.filter(s => s.id !== sessionId);
                 localStorage.setItem('sessions', JSON.stringify(updatedSessions));
                 
-                // Actualizar datos
                 loadSessions();
                 loadHistory();
                 
@@ -1135,9 +1298,16 @@
         function updateProfile() {
             const name = document.getElementById('profile-name').value;
             const email = document.getElementById('profile-email').value;
+            const password = document.getElementById('profile-password').value;
+            const confirmPassword = document.getElementById('profile-confirm-password').value;
             
             if (!name || !email) {
                 alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            if (password && password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
                 return;
             }
             
@@ -1153,12 +1323,18 @@
                     return;
                 }
                 
-                users[userIndex] = {
+                const updatedUser = {
                     ...users[userIndex],
                     name: name,
                     email: email
                 };
                 
+                // Actualizar contraseña si se proporcionó
+                if (password) {
+                    updatedUser.password = password;
+                }
+                
+                users[userIndex] = updatedUser;
                 localStorage.setItem('users', JSON.stringify(users));
                 
                 // Actualizar usuario actual
@@ -1167,6 +1343,10 @@
                 
                 // Actualizar nombre en la barra de navegación
                 document.getElementById('user-name').textContent = currentUser.name;
+                
+                // Limpiar campos de contraseña
+                document.getElementById('profile-password').value = '';
+                document.getElementById('profile-confirm-password').value = '';
                 
                 alert('Perfil actualizado exitosamente');
             }
@@ -1247,8 +1427,43 @@
         }
 
         function editSpa(spaId) {
+            const spa = allSpas.find(s => s.id === spaId);
+            if (!spa) return;
+            
             // Implementar edición de spa
-            alert('Funcionalidad de edición de spa en desarrollo');
+            const newName = prompt('Nuevo nombre del spa:', spa.name);
+            if (newName === null) return;
+            
+            const newAddress = prompt('Nueva dirección:', spa.address);
+            if (newAddress === null) return;
+            
+            const newPhone = prompt('Nuevo teléfono:', spa.phone);
+            if (newPhone === null) return;
+            
+            const newBasePrice = prompt('Nuevo precio base:', spa.basePrice);
+            if (newBasePrice === null) return;
+            
+            // Actualizar en localStorage
+            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
+            const spaIndex = spas.findIndex(s => s.id === spaId);
+            
+            if (spaIndex !== -1) {
+                spas[spaIndex] = {
+                    ...spas[spaIndex],
+                    name: newName,
+                    address: newAddress,
+                    phone: newPhone,
+                    basePrice: parseFloat(newBasePrice)
+                };
+                
+                localStorage.setItem('spas', JSON.stringify(spas));
+                
+                // Actualizar datos
+                loadAllSpas();
+                loadSpaManagement();
+                
+                alert('Spa actualizado exitosamente');
+            }
         }
 
         function deleteSpa(spaId) {
@@ -1338,6 +1553,77 @@
                 
                 tableBody.appendChild(row);
             });
+        }
+
+        function showAddUserModal() {
+            document.getElementById('add-user-form').reset();
+            
+            // Cargar checkboxes de spas
+            const addUserSpasCheckboxes = document.getElementById('add-user-spas-checkboxes');
+            addUserSpasCheckboxes.innerHTML = '';
+            
+            allSpas.forEach(spa => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'form-check';
+                checkboxDiv.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${spa.id}" id="add-spa-${spa.id}">
+                    <label class="form-check-label" for="add-spa-${spa.id}">
+                        ${spa.name}
+                    </label>
+                `;
+                addUserSpasCheckboxes.appendChild(checkboxDiv);
+            });
+            
+            new bootstrap.Modal(document.getElementById('addUserModal')).show();
+        }
+
+        function addUser() {
+            const name = document.getElementById('add-user-name').value;
+            const email = document.getElementById('add-user-email').value;
+            const password = document.getElementById('add-user-password').value;
+            const role = document.getElementById('add-user-role').value;
+            const status = document.getElementById('add-user-status').value;
+            
+            if (!name || !email || !password) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            // Obtener spas seleccionados
+            const selectedSpas = [];
+            document.querySelectorAll('#add-user-spas-checkboxes input:checked').forEach(checkbox => {
+                selectedSpas.push(checkbox.value);
+            });
+            
+            // Verificar si el usuario ya existe
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.find(u => u.email === email)) {
+                alert('Ya existe un usuario con este email');
+                return;
+            }
+            
+            const newUser = {
+                id: generateId(),
+                name: name,
+                email: email,
+                password: password,
+                role: role,
+                status: status,
+                spas: selectedSpas,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Cerrar modal
+            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            
+            // Recargar datos
+            loadAllUsers();
+            loadUserManagement();
+            
+            alert('Usuario creado exitosamente');
         }
 
         function editUser(userId) {
