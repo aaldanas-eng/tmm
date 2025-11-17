@@ -1,4 +1,4 @@
--- Script de políticas de seguridad (Row Level Security)
+-- Script de políticas de seguridad (Row Level Security) 
 -- Ejecutar después del setup.sql
 
 -- Habilitar RLS en todas las tablas
