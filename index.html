@@ -175,6 +175,11 @@
             color: var(--secondary-color);
             text-decoration: underline;
         }
+        
+        .car-days-badge {
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -193,7 +198,7 @@
                             <h4 class="mb-3">Login</h4>
                             <div class="mb-3">
                                 <label for="login-email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="login-email"> 
+                                <input type="email" class="form-control" id="login-email">
                                        
                             </div>
                             <div class="mb-3">
@@ -206,17 +211,17 @@
                                 <span id="login-spinner" class="loading-spinner d-none"></span>
                             </button>
                             
-							<div class="text-center mt-3">
-							    <p class="mb-0">Don't have an account? 
-							        <a href="#" class="register-link" onclick="showRegisterForm()">Register here</a>
-							    </p>
-							</div>
-							
-							<!-- Línea con texto debajo -->
-							<div class="text-center mt-2">
-							    <hr style="width: 80%; margin: 10px auto;">
-							    <small>Problems with access? contact to aac.techsol@gmail.com</small>
-							</div>
+                           <div class="text-center mt-3">
+												    <p class="mb-0">Don't have an account? 
+												        <a href="#" class="register-link" onclick="showRegisterForm()">Register here</a>
+												    </p>
+												</div>
+
+												<!-- Línea con texto debajo -->
+												<div class="text-center mt-2">
+												    <hr style="width: 80%; margin: 10px auto;">
+												    <small>Login Problems? Contact: aac.techsol@gmail.com</small>
+												</div>
                         </div>
                         
                         <!-- Registration Form (Initially Hidden) -->
@@ -405,6 +410,7 @@
                                             <div>
                                                 <h6 class="card-title text-muted mb-1">Total Hours</h6>
                                                 <h4 class="text-primary" id="total-hours">0</h4>
+                                                <span class="badge bg-primary car-days-badge" id="car-days-badge">Car: 0 days</span>
                                             </div>
                                             <div class="align-self-center">
                                                 <i class="bi bi-clock fs-4 text-primary"></i>
@@ -518,8 +524,15 @@
                                             <label class="form-label">Car</label>
                                             <select class="form-select" id="session-car" required>
                                                 <option value="">Select</option>
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                        <!-- Campo para seleccionar usuario (solo visible para administradores) -->
+                                        <div class="col-12 col-md-6 admin-only" id="session-user-container">
+                                            <label class="form-label">User</label>
+                                            <select class="form-select" id="session-user">
+                                                <option value="">Select user</option>
                                             </select>
                                         </div>
                                     </div>
@@ -1328,10 +1341,14 @@
             const baseAmount = totalRevenue / (1 + taxRate);
             const taxAmount = totalRevenue - baseAmount;
             
+            // Calculate car days - ahora usando 'y' en lugar de 'yes'
+            const carDays = filteredSessions.filter(session => session.car === 'Yes').length;
+            
             document.getElementById('total-hours').textContent = totalHours.toFixed(1);
             document.getElementById('total-revenue').textContent = `€${totalRevenue.toFixed(2)}`;
             document.getElementById('base-amount').textContent = `€${baseAmount.toFixed(2)}`;
             document.getElementById('tax-amount').textContent = `€${taxAmount.toFixed(2)}`;
+            document.getElementById('car-days-badge').textContent = `Car: ${carDays} days`;
             
             // Create charts with real data
             createRevenueChart(filteredSessions);
@@ -1467,6 +1484,24 @@
                 spaSelect.value = userSpas[0].id;
                 document.getElementById('session-price').value = userSpas[0].base_price;
             }
+            
+            // Load users for admin
+            if (currentUser.role === 'admin') {
+                const userSelect = document.getElementById('session-user');
+                userSelect.innerHTML = '<option value="">Select user</option>';
+                
+                allUsers.forEach(user => {
+                    if (user.status === 'active') {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.name;
+                        userSelect.appendChild(option);
+                    }
+                });
+                
+                // Set current user as default
+                userSelect.value = currentUser.id;
+            }
         }
 
         async function saveSession() {
@@ -1477,12 +1512,44 @@
             const car = document.getElementById('session-car').value;
             const notes = document.getElementById('session-notes').value;
             
+            // Determine user ID - for admin, use selected user, for regular users, use current user
+            let userId = currentUser.id;
+            let userName = currentUser.name;
+            
+            if (currentUser.role === 'admin') {
+                const selectedUserId = document.getElementById('session-user').value;
+                if (!selectedUserId) {
+                    showAlert('Please select a user', 'warning');
+                    return;
+                }
+                userId = selectedUserId;
+                
+                // Get user name for the selected user
+                const selectedUser = allUsers.find(u => u.id === selectedUserId);
+                if (!selectedUser) {
+                    showAlert('Selected user not found', 'warning');
+                    return;
+                }
+                userName = selectedUser.name;
+            }
+            
+            // Validación mejorada del campo car
             if (!spaId || !date || !totalHours || !pricePerHour || !car) {
                 showAlert('Please complete all required fields', 'warning');
                 return;
             }
             
+            if (car === "") {
+                showAlert('Please select if you used a car', 'warning');
+                return;
+            }
+            
             const selectedSpa = userSpas.find(spa => spa.id === spaId);
+            if (!selectedSpa) {
+                showAlert('Selected spa not found', 'warning');
+                return;
+            }
+            
             const totalAmount = parseFloat(totalHours) * parseFloat(pricePerHour);
             
             const newSession = {
@@ -1492,12 +1559,14 @@
                 total_hours: parseFloat(totalHours),
                 price_per_hour: parseFloat(pricePerHour),
                 total_amount: totalAmount,
-                car: car,
+                car: car, // Ahora usa 'y' o 'n' en lugar de 'yes' o 'no'
                 notes: notes,
-                user_id: currentUser.id,
-                user_name: currentUser.name,
+                user_id: userId,
+                user_name: userName,
                 created_at: new Date().toISOString()
             };
+            
+            console.log('Saving session:', newSession);
             
             toggleButtonLoading('save-session-btn', true);
             
@@ -1507,23 +1576,32 @@
                     .insert([newSession])
                     .select();
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('Supabase error:', error);
+                    throw error;
+                }
                 
                 await loadSessions();
                 document.getElementById('session-form').reset();
+                
+                // Reset form with default values
                 document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
-                document.getElementById('session-car').value = '';
                 
                 if (userSpas.length > 0) {
                     document.getElementById('session-spa').value = userSpas[0].id;
                     document.getElementById('session-price').value = userSpas[0].base_price;
                 }
                 
+                // Reset user selection for admin
+                if (currentUser.role === 'admin') {
+                    document.getElementById('session-user').value = currentUser.id;
+                }
+                
                 showAlert('Session registered successfully', 'success');
                 
             } catch (error) {
                 console.error('Error saving session:', error);
-                showAlert('Error saving session', 'danger');
+                showAlert('Error saving session: ' + error.message, 'danger');
             } finally {
                 toggleButtonLoading('save-session-btn', false);
             }
@@ -1549,9 +1627,11 @@
             }
             
             sessions.forEach(session => {
-                const carBadge = session.car === 'yes' ? 
-                    '<span class="badge bg-success car-badge">Yes</span>' : 
-                    '<span class="badge bg-secondary car-badge">No</span>';
+                // Ya viene como 'Yes' o 'No' desde la base de datos
+								const carDisplay = session.car;
+								const carBadge = session.car === 'Yes' ? 
+								    '<span class="badge bg-success car-badge">Yes</span>' : 
+								    '<span class="badge bg-secondary car-badge">No</span>';
                 
                 const userCell = currentUser.role === 'admin' ? 
                     `<td>${session.user_name}</td>` : '';
@@ -2138,8 +2218,6 @@
 
         // Initialize application
         console.log('Thai Massage Manager loaded successfully');
-		
-		
     </script>
 <script>
 // Bloquear click derecho
@@ -2160,5 +2238,4 @@ document.addEventListener('keydown', function(event) {
 });
 </script>	
 </body>
-
 </html>
