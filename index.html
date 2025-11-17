@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Añadir SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary-color: #8B4513;
@@ -102,6 +104,20 @@
             opacity: 1;
             transform: translateY(0);
         }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -120,13 +136,16 @@
                             <h4 class="mb-3">Iniciar Sesión</h4>
                             <div class="mb-3">
                                 <label for="login-email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="login-email" placeholder="admin@thaimassage.com" value="admin@thaimassage.com">
+                                <input type="email" class="form-control" id="login-email" placeholder="admin@thaimassage.com">
                             </div>
                             <div class="mb-3">
                                 <label for="login-password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="login-password" placeholder="••••••••" value="admin123">
+                                <input type="password" class="form-control" id="login-password" placeholder="••••••••">
                             </div>
-                            <button class="btn btn-primary w-100 mb-3" onclick="login()">Iniciar Sesión</button>
+                            <button class="btn btn-primary w-100 mb-3" onclick="login()" id="login-btn">
+                                <span id="login-text">Iniciar Sesión</span>
+                                <span id="login-spinner" class="loading-spinner d-none"></span>
+                            </button>
                             <div class="text-center mb-3">
                                 <small class="text-muted">Usuario demo: admin@thaimassage.com / admin123</small>
                             </div>
@@ -151,7 +170,10 @@
                                 <label for="register-confirm-password" class="form-label">Confirmar Contraseña</label>
                                 <input type="password" class="form-control" id="register-confirm-password" placeholder="••••••••">
                             </div>
-                            <button class="btn btn-primary w-100 mb-3" onclick="register()">Crear Cuenta</button>
+                            <button class="btn btn-primary w-100 mb-3" onclick="register()" id="register-btn">
+                                <span id="register-text">Crear Cuenta</span>
+                                <span id="register-spinner" class="loading-spinner d-none"></span>
+                            </button>
                             <p class="text-center">¿Ya tienes cuenta? <a href="#" onclick="toggleAuthForm()">Inicia sesión aquí</a></p>
                         </div>
                     </div>
@@ -374,7 +396,10 @@
                                         <label for="session-notes" class="form-label">Notas</label>
                                         <textarea class="form-control" id="session-notes" rows="3" placeholder="Notas adicionales..."></textarea>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="saveSession()">Guardar Sesión</button>
+                                    <button type="button" class="btn btn-primary" onclick="saveSession()" id="save-session-btn">
+                                        <span id="save-session-text">Guardar Sesión</span>
+                                        <span id="save-session-spinner" class="loading-spinner d-none"></span>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -446,7 +471,10 @@
                                         <label for="profile-status" class="form-label">Estado</label>
                                         <input type="text" class="form-control" id="profile-status" readonly>
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="updateProfile()">Actualizar Perfil</button>
+                                    <button type="button" class="btn btn-primary" onclick="updateProfile()" id="update-profile-btn">
+                                        <span id="update-profile-text">Actualizar Perfil</span>
+                                        <span id="update-profile-spinner" class="loading-spinner d-none"></span>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -486,7 +514,10 @@
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <button type="button" class="btn btn-secondary me-2" id="cancel-spa-btn" onclick="resetSpaForm()">Cancelar</button>
-                                        <button type="button" class="btn btn-primary" id="save-spa-btn" onclick="saveSpa()">Guardar Spa</button>
+                                        <button type="button" class="btn btn-primary" id="save-spa-btn" onclick="saveSpa()">
+                                            <span id="save-spa-text">Guardar Spa</span>
+                                            <span id="save-spa-spinner" class="loading-spinner d-none"></span>
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -600,7 +631,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="addUser()">Guardar Usuario</button>
+                    <button type="button" class="btn btn-primary" onclick="addUser()" id="add-user-btn">
+                        <span id="add-user-text">Guardar Usuario</span>
+                        <span id="add-user-spinner" class="loading-spinner d-none"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -650,7 +684,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="updateUser()">Actualizar Usuario</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUser()" id="update-user-btn">
+                        <span id="update-user-text">Actualizar Usuario</span>
+                        <span id="update-user-spinner" class="loading-spinner d-none"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -667,6 +704,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // CONFIGURACIÓN DE SUPABASE - REEMPLAZA CON TUS PROPIAS CREDENCIALES
+        const SUPABASE_URL = 'https://tu-proyecto.supabase.co'; // Reemplaza con tu URL
+        const SUPABASE_ANON_KEY = 'tu-anon-key-aqui'; // Reemplaza con tu anon key
+        
+        // Inicializar cliente de Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         // Estado de la aplicación
         let currentUser = null;
         let userSpas = [];
@@ -684,9 +728,7 @@
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM cargado - inicializando aplicación');
-            
-            // Inicializar datos por defecto
-            initializeDefaultData();
+            console.log('Supabase URL:', SUPABASE_URL);
             
             // Verificar si hay un usuario logueado
             const savedUser = localStorage.getItem('currentUser');
@@ -704,58 +746,6 @@
             }
         });
 
-        // Inicializar datos por defecto
-        function initializeDefaultData() {
-            console.log('Inicializando datos por defecto');
-            
-            // Verificar si ya existen datos
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
-            
-            // Crear usuario admin por defecto si no existe
-            if (!users.find(u => u.role === 'admin')) {
-                console.log('Creando usuario admin por defecto');
-                const defaultAdmin = {
-                    id: generateId(),
-                    name: 'Administrador',
-                    email: 'admin@thaimassage.com',
-                    password: 'admin123',
-                    role: 'admin',
-                    status: 'active',
-                    spas: [],
-                    createdAt: new Date().toISOString()
-                };
-                users.push(defaultAdmin);
-                localStorage.setItem('users', JSON.stringify(users));
-            }
-            
-            // Crear algunos spas de ejemplo si no existen
-            if (spas.length === 0) {
-                console.log('Creando spas por defecto');
-                const defaultSpas = [
-                    {
-                        id: generateId(),
-                        name: 'Thai Spa Central',
-                        address: 'Calle Principal 123, Madrid',
-                        phone: '+34 91 123 4567',
-                        basePrice: 60.00,
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: generateId(),
-                        name: 'Zen Thai Massage',
-                        address: 'Avenida Libertad 45, Barcelona',
-                        phone: '+34 93 987 6543',
-                        basePrice: 55.00,
-                        createdAt: new Date().toISOString()
-                    }
-                ];
-                localStorage.setItem('spas', JSON.stringify(defaultSpas));
-            }
-            
-            console.log('Datos inicializados correctamente');
-        }
-
         // Funciones de autenticación
         function toggleAuthForm() {
             const loginForm = document.getElementById('login-form');
@@ -770,7 +760,7 @@
             }
         }
 
-        function login() {
+        async function login() {
             console.log('Intentando login...');
             
             const email = document.getElementById('login-email').value;
@@ -781,28 +771,52 @@
                 return;
             }
             
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            console.log('Usuarios en sistema:', users);
+            // Mostrar spinner
+            toggleButtonLoading('login-btn', true);
             
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (user) {
-                if (user.status !== 'active') {
-                    showAlert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.', 'warning');
+            try {
+                // Buscar usuario en Supabase
+                const { data: users, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', email)
+                    .eq('password', password)
+                    .single();
+                
+                if (error) {
+                    console.error('Error al buscar usuario:', error);
+                    showAlert('Email o contraseña incorrectos', 'danger');
+                    toggleButtonLoading('login-btn', false);
                     return;
                 }
                 
-                console.log('Usuario autenticado:', user);
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
+                if (!users) {
+                    console.log('Credenciales incorrectas');
+                    showAlert('Email o contraseña incorrectos', 'danger');
+                    toggleButtonLoading('login-btn', false);
+                    return;
+                }
+                
+                if (users.status !== 'active') {
+                    showAlert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.', 'warning');
+                    toggleButtonLoading('login-btn', false);
+                    return;
+                }
+                
+                console.log('Usuario autenticado:', users);
+                currentUser = users;
+                localStorage.setItem('currentUser', JSON.stringify(users));
                 initializeApp();
-            } else {
-                console.log('Credenciales incorrectas');
-                showAlert('Email o contraseña incorrectos', 'danger');
+                
+            } catch (error) {
+                console.error('Error en login:', error);
+                showAlert('Error al iniciar sesión. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('login-btn', false);
             }
         }
 
-        function register() {
+        async function register() {
             const name = document.getElementById('register-name').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
@@ -823,29 +837,55 @@
                 return;
             }
             
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            // Mostrar spinner
+            toggleButtonLoading('register-btn', true);
             
-            if (users.find(u => u.email === email)) {
-                showAlert('Ya existe un usuario con este email', 'warning');
-                return;
+            try {
+                // Verificar si el usuario ya existe
+                const { data: existingUser, error: checkError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', email)
+                    .single();
+                
+                if (existingUser) {
+                    showAlert('Ya existe un usuario con este email', 'warning');
+                    toggleButtonLoading('register-btn', false);
+                    return;
+                }
+                
+                // Crear nuevo usuario
+                const newUser = {
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: 'user',
+                    status: 'pending',
+                    spas: [],
+                    created_at: new Date().toISOString()
+                };
+                
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([newUser])
+                    .select();
+                
+                if (error) {
+                    console.error('Error al crear usuario:', error);
+                    showAlert('Error al crear la cuenta. Inténtalo de nuevo.', 'danger');
+                    toggleButtonLoading('register-btn', false);
+                    return;
+                }
+                
+                showAlert('Cuenta creada exitosamente. Debes esperar la aprobación del administrador para acceder al sistema.', 'success');
+                toggleAuthForm();
+                
+            } catch (error) {
+                console.error('Error en registro:', error);
+                showAlert('Error al crear la cuenta. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('register-btn', false);
             }
-            
-            const newUser = {
-                id: generateId(),
-                name: name,
-                email: email,
-                password: password,
-                role: 'user',
-                status: 'pending',
-                spas: [],
-                createdAt: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            showAlert('Cuenta creada exitosamente. Debes esperar la aprobación del administrador para acceder al sistema.', 'success');
-            toggleAuthForm();
         }
 
         function logout() {
@@ -856,7 +896,7 @@
         }
 
         // Inicialización de la aplicación
-        function initializeApp() {
+        async function initializeApp() {
             console.log('Inicializando aplicación para usuario:', currentUser);
             
             document.getElementById('auth-screen').classList.add('d-none');
@@ -873,10 +913,11 @@
                 document.getElementById('admin-menu').classList.add('d-none');
             }
             
-            loadUserSpas();
-            loadAllSpas();
-            loadAllUsers();
-            loadSessions();
+            // Cargar datos desde Supabase
+            await loadUserSpas();
+            await loadAllSpas();
+            await loadAllUsers();
+            await loadSessions();
             
             showSection('dashboard');
             
@@ -928,40 +969,92 @@
         }
 
         // Gestión de Spas
-        function loadUserSpas() {
-            const allSpasData = JSON.parse(localStorage.getItem('spas') || '[]');
-            
-            if (currentUser.role === 'admin') {
-                userSpas = allSpasData;
-            } else {
-                userSpas = allSpasData.filter(spa => 
-                    currentUser.spas && currentUser.spas.includes(spa.id)
-                );
+        async function loadUserSpas() {
+            try {
+                if (currentUser.role === 'admin') {
+                    // Los administradores ven todos los spas
+                    const { data, error } = await supabase
+                        .from('spas')
+                        .select('*')
+                        .order('name');
+                    
+                    if (error) throw error;
+                    userSpas = data || [];
+                } else {
+                    // Los usuarios ven solo sus spas asignados
+                    if (currentUser.spas && currentUser.spas.length > 0) {
+                        const { data, error } = await supabase
+                            .from('spas')
+                            .select('*')
+                            .in('id', currentUser.spas)
+                            .order('name');
+                        
+                        if (error) throw error;
+                        userSpas = data || [];
+                    } else {
+                        userSpas = [];
+                    }
+                }
+                
+                console.log('Spas del usuario:', userSpas);
+            } catch (error) {
+                console.error('Error al cargar spas del usuario:', error);
+                userSpas = [];
             }
-            
-            console.log('Spas del usuario:', userSpas);
         }
 
-        function loadAllSpas() {
-            allSpas = JSON.parse(localStorage.getItem('spas') || '[]');
-            console.log('Todos los spas:', allSpas);
-        }
-
-        function loadAllUsers() {
-            allUsers = JSON.parse(localStorage.getItem('users') || '[]');
-            console.log('Todos los usuarios:', allUsers);
-        }
-
-        function loadSessions() {
-            const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
-            
-            if (currentUser.role === 'admin') {
-                sessions = sessionsData;
-            } else {
-                sessions = sessionsData.filter(session => session.userId === currentUser.id);
+        async function loadAllSpas() {
+            try {
+                const { data, error } = await supabase
+                    .from('spas')
+                    .select('*')
+                    .order('name');
+                
+                if (error) throw error;
+                allSpas = data || [];
+                console.log('Todos los spas:', allSpas);
+            } catch (error) {
+                console.error('Error al cargar todos los spas:', error);
+                allSpas = [];
             }
-            
-            console.log('Sesiones cargadas:', sessions.length);
+        }
+
+        async function loadAllUsers() {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('name');
+                
+                if (error) throw error;
+                allUsers = data || [];
+                console.log('Todos los usuarios:', allUsers);
+            } catch (error) {
+                console.error('Error al cargar todos los usuarios:', error);
+                allUsers = [];
+            }
+        }
+
+        async function loadSessions() {
+            try {
+                let query = supabase
+                    .from('sessions')
+                    .select('*');
+                
+                if (currentUser.role !== 'admin') {
+                    // Los usuarios normales solo ven sus propias sesiones
+                    query = query.eq('user_id', currentUser.id);
+                }
+                
+                const { data, error } = await query.order('date', { ascending: false });
+                
+                if (error) throw error;
+                sessions = data || [];
+                console.log('Sesiones cargadas:', sessions.length);
+            } catch (error) {
+                console.error('Error al cargar sesiones:', error);
+                sessions = [];
+            }
         }
 
         // Dashboard - Filtros
@@ -1022,7 +1115,7 @@
             // Filtrar por spa
             if (currentFilters.spa && currentFilters.spa !== 'all') {
                 filteredSessions = filteredSessions.filter(session => 
-                    session.spaId === currentFilters.spa
+                    session.spa_id === currentFilters.spa
                 );
             }
             
@@ -1037,11 +1130,11 @@
             
             // Calcular estadísticas
             const totalHours = filteredSessions.reduce((sum, session) => 
-                sum + parseFloat(session.totalHours || 0), 0
+                sum + parseFloat(session.total_hours || 0), 0
             );
             
             const totalRevenue = filteredSessions.reduce((sum, session) => 
-                sum + parseFloat(session.totalAmount || 0), 0
+                sum + parseFloat(session.total_amount || 0), 0
             );
             
             // Calcular base imponible e IVA (21%)
@@ -1070,7 +1163,7 @@
                 if (!monthlyData[month]) {
                     monthlyData[month] = 0;
                 }
-                monthlyData[month] += parseFloat(session.totalAmount || 0);
+                monthlyData[month] += parseFloat(session.total_amount || 0);
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1112,10 +1205,10 @@
             // Agrupar por spa
             const spaData = {};
             filteredSessions.forEach(session => {
-                if (!spaData[session.spaName]) {
-                    spaData[session.spaName] = 0;
+                if (!spaData[session.spa_name]) {
+                    spaData[session.spa_name] = 0;
                 }
-                spaData[session.spaName]++;
+                spaData[session.spa_name]++;
             });
             
             const labels = Object.keys(spaData);
@@ -1182,7 +1275,7 @@
             spaSelect.addEventListener('change', function() {
                 const selectedSpa = userSpas.find(spa => spa.id === this.value);
                 if (selectedSpa) {
-                    document.getElementById('session-price').value = selectedSpa.basePrice;
+                    document.getElementById('session-price').value = selectedSpa.base_price;
                 } else {
                     document.getElementById('session-price').value = '';
                 }
@@ -1191,7 +1284,7 @@
             // Si hay spas disponibles, seleccionar el primero
             if (userSpas.length > 0) {
                 spaSelect.value = userSpas[0].id;
-                document.getElementById('session-price').value = userSpas[0].basePrice;
+                document.getElementById('session-price').value = userSpas[0].base_price;
             } else {
                 console.warn('No hay spas disponibles para este usuario');
             }
@@ -1201,7 +1294,7 @@
             document.getElementById('session-notes').value = '';
         }
 
-        function saveSession() {
+        async function saveSession() {
             const spaId = document.getElementById('session-spa').value;
             const date = document.getElementById('session-date').value;
             const totalHours = document.getElementById('session-total-hours').value;
@@ -1219,31 +1312,44 @@
             const totalAmount = parseFloat(totalHours) * parseFloat(pricePerHour);
             
             const newSession = {
-                id: generateId(),
-                spaId: spaId,
-                spaName: selectedSpa.name,
+                spa_id: spaId,
+                spa_name: selectedSpa.name,
                 date: date,
-                totalHours: parseFloat(totalHours),
-                pricePerHour: parseFloat(pricePerHour),
-                totalAmount: totalAmount,
+                total_hours: parseFloat(totalHours),
+                price_per_hour: parseFloat(pricePerHour),
+                total_amount: totalAmount,
                 notes: notes,
-                userId: currentUser.id,
-                userName: currentUser.name,
-                createdAt: new Date().toISOString()
+                user_id: currentUser.id,
+                user_name: currentUser.name,
+                created_at: new Date().toISOString()
             };
             
-            // Guardar en localStorage
-            const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
-            sessionsData.push(newSession);
-            localStorage.setItem('sessions', JSON.stringify(sessionsData));
+            // Mostrar spinner
+            toggleButtonLoading('save-session-btn', true);
             
-            // Actualizar datos
-            loadSessions();
-            
-            // Limpiar formulario
-            resetSessionForm();
-            
-            showAlert('Sesión registrada exitosamente', 'success');
+            try {
+                // Guardar en Supabase
+                const { data, error } = await supabase
+                    .from('sessions')
+                    .insert([newSession])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Actualizar datos
+                await loadSessions();
+                
+                // Limpiar formulario
+                resetSessionForm();
+                
+                showAlert('Sesión registrada exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al guardar sesión:', error);
+                showAlert('Error al guardar la sesión. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('save-session-btn', false);
+            }
         }
 
         function resetSessionForm() {
@@ -1255,12 +1361,12 @@
             const spaSelect = document.getElementById('session-spa');
             if (userSpas.length > 0) {
                 spaSelect.value = userSpas[0].id;
-                document.getElementById('session-price').value = userSpas[0].basePrice;
+                document.getElementById('session-price').value = userSpas[0].base_price;
             }
         }
 
         // Historial
-        function loadHistory() {
+        async function loadHistory() {
             console.log('Cargando historial...');
             
             const tableBody = document.getElementById('history-table-body');
@@ -1278,10 +1384,10 @@
                 
                 row.innerHTML = `
                     <td>${formatDate(session.date)}</td>
-                    <td>${session.spaName}</td>
-                    <td>${session.totalHours} h</td>
-                    <td>€${parseFloat(session.pricePerHour).toFixed(2)}/h</td>
-                    <td>€${parseFloat(session.totalAmount).toFixed(2)}</td>
+                    <td>${session.spa_name}</td>
+                    <td>${session.total_hours} h</td>
+                    <td>€${parseFloat(session.price_per_hour).toFixed(2)}/h</td>
+                    <td>€${parseFloat(session.total_amount).toFixed(2)}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteSession('${session.id}')">
                             <i class="bi bi-trash"></i>
@@ -1293,16 +1399,24 @@
             });
         }
 
-        function deleteSession(sessionId) {
+        async function deleteSession(sessionId) {
             if (confirm('¿Estás seguro de que quieres eliminar esta sesión?')) {
-                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
-                const updatedSessions = sessionsData.filter(s => s.id !== sessionId);
-                localStorage.setItem('sessions', JSON.stringify(updatedSessions));
-                
-                loadSessions();
-                loadHistory();
-                
-                showAlert('Sesión eliminada exitosamente', 'success');
+                try {
+                    const { error } = await supabase
+                        .from('sessions')
+                        .delete()
+                        .eq('id', sessionId);
+                    
+                    if (error) throw error;
+                    
+                    await loadSessions();
+                    loadHistory();
+                    
+                    showAlert('Sesión eliminada exitosamente', 'success');
+                } catch (error) {
+                    console.error('Error al eliminar sesión:', error);
+                    showAlert('Error al eliminar la sesión. Inténtalo de nuevo.', 'danger');
+                }
             }
         }
 
@@ -1343,7 +1457,7 @@
             }
         }
 
-        function updateProfile() {
+        async function updateProfile() {
             const name = document.getElementById('profile-name').value;
             const email = document.getElementById('profile-email').value;
             const password = document.getElementById('profile-password').value;
@@ -1359,34 +1473,46 @@
                 return;
             }
             
-            // Actualizar en localStorage
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            // Mostrar spinner
+            toggleButtonLoading('update-profile-btn', true);
             
-            if (userIndex !== -1) {
+            try {
                 // Verificar si el email ya está en uso por otro usuario
-                const emailExists = users.find(u => u.email === email && u.id !== currentUser.id);
-                if (emailExists) {
+                const { data: existingUser, error: checkError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', email)
+                    .neq('id', currentUser.id)
+                    .single();
+                
+                if (existingUser) {
                     showAlert('Ya existe un usuario con este email', 'warning');
+                    toggleButtonLoading('update-profile-btn', false);
                     return;
                 }
                 
-                const updatedUser = {
-                    ...users[userIndex],
+                // Preparar datos para actualizar
+                const updateData = {
                     name: name,
                     email: email
                 };
                 
                 // Actualizar contraseña si se proporcionó
                 if (password) {
-                    updatedUser.password = password;
+                    updateData.password = password;
                 }
                 
-                users[userIndex] = updatedUser;
-                localStorage.setItem('users', JSON.stringify(users));
+                // Actualizar en Supabase
+                const { data, error } = await supabase
+                    .from('users')
+                    .update(updateData)
+                    .eq('id', currentUser.id)
+                    .select();
+                
+                if (error) throw error;
                 
                 // Actualizar usuario actual
-                currentUser = users[userIndex];
+                currentUser = data[0];
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 // Actualizar nombre en la barra de navegación
@@ -1397,11 +1523,17 @@
                 document.getElementById('profile-confirm-password').value = '';
                 
                 showAlert('Perfil actualizado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al actualizar perfil:', error);
+                showAlert('Error al actualizar el perfil. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('update-profile-btn', false);
             }
         }
 
         // Gestión de Spas (Admin only)
-        function loadSpaManagement() {
+        async function loadSpaManagement() {
             console.log('Cargando gestión de spas...');
             
             const tableBody = document.getElementById('spa-table-body');
@@ -1419,7 +1551,7 @@
                     <td>${spa.name}</td>
                     <td>${spa.address}</td>
                     <td>${spa.phone}</td>
-                    <td>€${parseFloat(spa.basePrice).toFixed(2)}</td>
+                    <td>€${parseFloat(spa.base_price).toFixed(2)}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary me-1" onclick="editSpa('${spa.id}')">
                             <i class="bi bi-pencil"></i>
@@ -1443,7 +1575,7 @@
             document.getElementById('spa-name').value = spa.name;
             document.getElementById('spa-address').value = spa.address;
             document.getElementById('spa-phone').value = spa.phone;
-            document.getElementById('spa-base-price').value = spa.basePrice;
+            document.getElementById('spa-base-price').value = spa.base_price;
             
             // Cambiar título del formulario
             document.getElementById('spa-form-title').textContent = 'Editar Spa';
@@ -1455,7 +1587,7 @@
             document.getElementById('spa-form').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function saveSpa() {
+        async function saveSpa() {
             const id = document.getElementById('spa-id').value;
             const name = document.getElementById('spa-name').value;
             const address = document.getElementById('spa-address').value;
@@ -1467,43 +1599,57 @@
                 return;
             }
             
-            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
+            // Mostrar spinner
+            toggleButtonLoading('save-spa-btn', true);
             
-            if (id) {
-                // Editar spa existente
-                const spaIndex = spas.findIndex(s => s.id === id);
-                if (spaIndex !== -1) {
-                    spas[spaIndex] = {
-                        ...spas[spaIndex],
+            try {
+                if (id) {
+                    // Editar spa existente
+                    const { data, error } = await supabase
+                        .from('spas')
+                        .update({
+                            name: name,
+                            address: address,
+                            phone: phone,
+                            base_price: parseFloat(basePrice)
+                        })
+                        .eq('id', id)
+                        .select();
+                    
+                    if (error) throw error;
+                    
+                    showAlert('Spa actualizado exitosamente', 'success');
+                } else {
+                    // Agregar nuevo spa
+                    const newSpa = {
                         name: name,
                         address: address,
                         phone: phone,
-                        basePrice: parseFloat(basePrice)
+                        base_price: parseFloat(basePrice),
+                        created_at: new Date().toISOString()
                     };
                     
-                    localStorage.setItem('spas', JSON.stringify(spas));
-                    showAlert('Spa actualizado exitosamente', 'success');
+                    const { data, error } = await supabase
+                        .from('spas')
+                        .insert([newSpa])
+                        .select();
+                    
+                    if (error) throw error;
+                    
+                    showAlert('Spa agregado exitosamente', 'success');
                 }
-            } else {
-                // Agregar nuevo spa
-                const newSpa = {
-                    id: generateId(),
-                    name: name,
-                    address: address,
-                    phone: phone,
-                    basePrice: parseFloat(basePrice),
-                    createdAt: new Date().toISOString()
-                };
                 
-                spas.push(newSpa);
-                localStorage.setItem('spas', JSON.stringify(spas));
-                showAlert('Spa agregado exitosamente', 'success');
+                // Actualizar datos
+                await loadAllSpas();
+                loadSpaManagement();
+                resetSpaForm();
+                
+            } catch (error) {
+                console.error('Error al guardar spa:', error);
+                showAlert('Error al guardar el spa. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('save-spa-btn', false);
             }
-            
-            // Actualizar datos
-            loadAllSpas();
-            loadSpaManagement();
-            resetSpaForm();
         }
 
         function resetSpaForm() {
@@ -1513,41 +1659,58 @@
             document.getElementById('cancel-spa-btn').classList.add('d-none');
         }
 
-        function deleteSpa(spaId) {
+        async function deleteSpa(spaId) {
             if (confirm('¿Estás seguro de que quieres eliminar este spa?')) {
-                // Verificar si hay sesiones asociadas a este spa
-                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
-                const spaSessions = sessionsData.filter(s => s.spaId === spaId);
-                
-                if (spaSessions.length > 0) {
-                    showAlert('No se puede eliminar el spa porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
-                    return;
+                try {
+                    // Verificar si hay sesiones asociadas a este spa
+                    const { data: spaSessions, error: sessionsError } = await supabase
+                        .from('sessions')
+                        .select('id')
+                        .eq('spa_id', spaId);
+                    
+                    if (sessionsError) throw sessionsError;
+                    
+                    if (spaSessions && spaSessions.length > 0) {
+                        showAlert('No se puede eliminar el spa porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
+                        return;
+                    }
+                    
+                    // Verificar si hay usuarios asignados a este spa
+                    const { data: usersWithSpa, error: usersError } = await supabase
+                        .from('users')
+                        .select('id')
+                        .contains('spas', [spaId]);
+                    
+                    if (usersError) throw usersError;
+                    
+                    if (usersWithSpa && usersWithSpa.length > 0) {
+                        showAlert('No se puede eliminar el spa porque hay usuarios asignados a él. Reasigne primero los usuarios.', 'warning');
+                        return;
+                    }
+                    
+                    // Eliminar de Supabase
+                    const { error } = await supabase
+                        .from('spas')
+                        .delete()
+                        .eq('id', spaId);
+                    
+                    if (error) throw error;
+                    
+                    // Actualizar datos
+                    await loadAllSpas();
+                    loadSpaManagement();
+                    
+                    showAlert('Spa eliminado exitosamente', 'success');
+                    
+                } catch (error) {
+                    console.error('Error al eliminar spa:', error);
+                    showAlert('Error al eliminar el spa. Inténtalo de nuevo.', 'danger');
                 }
-                
-                // Verificar si hay usuarios asignados a este spa
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const usersWithSpa = users.filter(u => u.spas && u.spas.includes(spaId));
-                
-                if (usersWithSpa.length > 0) {
-                    showAlert('No se puede eliminar el spa porque hay usuarios asignados a él. Reasigne primero los usuarios.', 'warning');
-                    return;
-                }
-                
-                // Eliminar de localStorage
-                const spas = JSON.parse(localStorage.getItem('spas') || '[]');
-                const updatedSpas = spas.filter(s => s.id !== spaId);
-                localStorage.setItem('spas', JSON.stringify(updatedSpas));
-                
-                // Actualizar datos
-                loadAllSpas();
-                loadSpaManagement();
-                
-                showAlert('Spa eliminado exitosamente', 'success');
             }
         }
 
         // Gestión de Usuarios (Admin only)
-        function loadUserManagement() {
+        async function loadUserManagement() {
             const tableBody = document.getElementById('user-table-body');
             if (!tableBody) {
                 console.error('No se encontró user-table-body');
@@ -1624,7 +1787,7 @@
             new bootstrap.Modal(document.getElementById('addUserModal')).show();
         }
 
-        function addUser() {
+        async function addUser() {
             const name = document.getElementById('add-user-name').value;
             const email = document.getElementById('add-user-email').value;
             const password = document.getElementById('add-user-password').value;
@@ -1642,38 +1805,58 @@
                 selectedSpas.push(checkbox.value);
             });
             
-            // Verificar si el usuario ya existe
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            if (users.find(u => u.email === email)) {
-                showAlert('Ya existe un usuario con este email', 'warning');
-                return;
+            // Mostrar spinner
+            toggleButtonLoading('add-user-btn', true);
+            
+            try {
+                // Verificar si el usuario ya existe
+                const { data: existingUser, error: checkError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', email)
+                    .single();
+                
+                if (existingUser) {
+                    showAlert('Ya existe un usuario con este email', 'warning');
+                    toggleButtonLoading('add-user-btn', false);
+                    return;
+                }
+                
+                const newUser = {
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role,
+                    status: status,
+                    spas: selectedSpas,
+                    created_at: new Date().toISOString()
+                };
+                
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([newUser])
+                    .select();
+                
+                if (error) throw error;
+                
+                // Cerrar modal
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                
+                // Recargar datos
+                await loadAllUsers();
+                loadUserManagement();
+                
+                showAlert('Usuario creado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al crear usuario:', error);
+                showAlert('Error al crear el usuario. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('add-user-btn', false);
             }
-            
-            const newUser = {
-                id: generateId(),
-                name: name,
-                email: email,
-                password: password,
-                role: role,
-                status: status,
-                spas: selectedSpas,
-                createdAt: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            // Cerrar modal
-            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
-            
-            // Recargar datos
-            loadAllUsers();
-            loadUserManagement();
-            
-            showAlert('Usuario creado exitosamente', 'success');
         }
 
-        function editUser(userId) {
+        async function editUser(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (!user) return;
             
@@ -1704,7 +1887,7 @@
             new bootstrap.Modal(document.getElementById('editUserModal')).show();
         }
 
-        function updateUser() {
+        async function updateUser() {
             const userId = document.getElementById('edit-user-id').value;
             const name = document.getElementById('edit-user-name').value;
             const email = document.getElementById('edit-user-email').value;
@@ -1722,41 +1905,56 @@
                 selectedSpas.push(checkbox.value);
             });
             
-            // Actualizar en localStorage
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const userIndex = users.findIndex(u => u.id === userId);
+            // Mostrar spinner
+            toggleButtonLoading('update-user-btn', true);
             
-            if (userIndex !== -1) {
+            try {
                 // Verificar si el email ya está en uso por otro usuario
-                const emailExists = users.find(u => u.email === email && u.id !== userId);
-                if (emailExists) {
+                const { data: existingUser, error: checkError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', email)
+                    .neq('id', userId)
+                    .single();
+                
+                if (existingUser) {
                     showAlert('Ya existe un usuario con este email', 'warning');
+                    toggleButtonLoading('update-user-btn', false);
                     return;
                 }
                 
-                users[userIndex] = {
-                    ...users[userIndex],
-                    name: name,
-                    email: email,
-                    role: role,
-                    status: status,
-                    spas: selectedSpas
-                };
+                const { data, error } = await supabase
+                    .from('users')
+                    .update({
+                        name: name,
+                        email: email,
+                        role: role,
+                        status: status,
+                        spas: selectedSpas
+                    })
+                    .eq('id', userId)
+                    .select();
                 
-                localStorage.setItem('users', JSON.stringify(users));
+                if (error) throw error;
                 
                 // Cerrar modal
                 bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
                 
                 // Recargar datos
-                loadAllUsers();
+                await loadAllUsers();
                 loadUserManagement();
                 
                 showAlert('Usuario actualizado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al actualizar usuario:', error);
+                showAlert('Error al actualizar el usuario. Inténtalo de nuevo.', 'danger');
+            } finally {
+                toggleButtonLoading('update-user-btn', false);
             }
         }
 
-        function deleteUser(userId) {
+        async function deleteUser(userId) {
             if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
                 // No permitir eliminar el propio usuario
                 if (userId === currentUser.id) {
@@ -1764,33 +1962,42 @@
                     return;
                 }
                 
-                // Verificar si hay sesiones asociadas a este usuario
-                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
-                const userSessions = sessionsData.filter(s => s.userId === userId);
-                
-                if (userSessions.length > 0) {
-                    showAlert('No se puede eliminar el usuario porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
-                    return;
+                try {
+                    // Verificar si hay sesiones asociadas a este usuario
+                    const { data: userSessions, error: sessionsError } = await supabase
+                        .from('sessions')
+                        .select('id')
+                        .eq('user_id', userId);
+                    
+                    if (sessionsError) throw sessionsError;
+                    
+                    if (userSessions && userSessions.length > 0) {
+                        showAlert('No se puede eliminar el usuario porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
+                        return;
+                    }
+                    
+                    // Eliminar de Supabase
+                    const { error } = await supabase
+                        .from('users')
+                        .delete()
+                        .eq('id', userId);
+                    
+                    if (error) throw error;
+                    
+                    // Actualizar datos
+                    await loadAllUsers();
+                    loadUserManagement();
+                    
+                    showAlert('Usuario eliminado exitosamente', 'success');
+                    
+                } catch (error) {
+                    console.error('Error al eliminar usuario:', error);
+                    showAlert('Error al eliminar el usuario. Inténtalo de nuevo.', 'danger');
                 }
-                
-                // Eliminar de localStorage
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const updatedUsers = users.filter(u => u.id !== userId);
-                localStorage.setItem('users', JSON.stringify(updatedUsers));
-                
-                // Actualizar datos
-                loadAllUsers();
-                loadUserManagement();
-                
-                showAlert('Usuario eliminado exitosamente', 'success');
             }
         }
 
         // Funciones auxiliares
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
         function formatDate(dateString) {
             const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
             return new Date(dateString).toLocaleDateString('es-ES', options);
@@ -1823,6 +2030,23 @@
             setTimeout(() => {
                 alertElement.classList.add('d-none');
             }, 300);
+        }
+
+        // Función para mostrar/ocultar spinners en botones
+        function toggleButtonLoading(buttonId, isLoading) {
+            const button = document.getElementById(buttonId);
+            const textSpan = document.getElementById(`${buttonId.replace('-btn', '')}-text`);
+            const spinnerSpan = document.getElementById(`${buttonId.replace('-btn', '')}-spinner`);
+            
+            if (isLoading) {
+                textSpan.classList.add('d-none');
+                spinnerSpan.classList.remove('d-none');
+                button.disabled = true;
+            } else {
+                textSpan.classList.remove('d-none');
+                spinnerSpan.classList.add('d-none');
+                button.disabled = false;
+            }
         }
     </script>
 </body>
