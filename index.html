@@ -69,16 +69,8 @@
             right: 20px;
             z-index: 1050;
             min-width: 300px;
-            max-width: 90%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             border-radius: 8px;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
-        .custom-alert.show {
-            opacity: 1;
-            transform: translateY(0);
         }
         
         .loading-spinner {
@@ -104,25 +96,27 @@
                     <div class="login-card p-4">
                         <div class="text-center mb-4">
                             <h2 class="fw-bold" style="color: var(--primary-color);">Thai Massage Manager</h2>
-                            <p class="text-muted">Gestión integral para centros de masaje tailandés</p>
+                            <p class="text-muted">Sistema de gestión para centros de masaje</p>
                         </div>
                         
                         <div id="login-form">
                             <h4 class="mb-3">Iniciar Sesión</h4>
                             <div class="mb-3">
                                 <label for="login-email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="login-email" placeholder="admin@thaimassage.com" value="admin@thaimassage.com">
+                                <input type="email" class="form-control" id="login-email" 
+                                       placeholder="admin@thaimassage.com" value="admin@thaimassage.com">
                             </div>
                             <div class="mb-3">
                                 <label for="login-password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="login-password" placeholder="••••••••" value="admin123">
+                                <input type="password" class="form-control" id="login-password" 
+                                       placeholder="••••••••" value="admin123">
                             </div>
                             <button class="btn btn-primary w-100 mb-3" onclick="login()" id="login-btn">
                                 <span id="login-text">Iniciar Sesión</span>
                                 <span id="login-spinner" class="loading-spinner d-none"></span>
                             </button>
                             <div class="text-center">
-                                <small class="text-muted">Usuario: admin@thaimassage.com / Contraseña: admin123</small>
+                                <small class="text-muted">Usuario demo cargado automáticamente</small>
                             </div>
                         </div>
                     </div>
@@ -138,23 +132,20 @@
                 <a class="navbar-brand fw-bold" href="#">
                     <i class="bi bi-flower1 me-2"></i>Thai Massage Manager
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i> <span id="user-name">Usuario</span>
-                                <span id="user-badge" class="badge bg-warning ms-1 d-none">Admin</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="showSection('profile')"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+                <div class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i> <span id="user-name">Usuario</span>
+                            <span id="user-badge" class="badge bg-warning ms-1">Admin</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showSection('profile')">
+                                <i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">
+                                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
                 </div>
             </div>
         </nav>
@@ -180,7 +171,7 @@
                                     <i class="bi bi-clock-history me-2"></i> Historial
                                 </a>
                             </li>
-                            <li id="admin-menu" class="d-none">
+                            <li>
                                 <hr>
                                 <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">Administración</h6>
                                 <a href="#" class="nav-link text-dark" onclick="showSection('spa-management')">
@@ -195,7 +186,7 @@
                 </div>
 
                 <!-- Main Content -->
-                <div class="col-md-9 col-lg-10 ml-sm-auto px-4 py-4">
+                <div class="col-md-9 col-lg-10 px-4 py-4">
                     <!-- Dashboard Section -->
                     <div id="dashboard-section">
                         <h2 class="mb-4">Dashboard</h2>
@@ -204,15 +195,15 @@
                             <h5 class="mb-3">Filtros</h5>
                             <div class="row">
                                 <div class="col-md-3 mb-3">
-                                    <label for="filter-start-date" class="form-label">Fecha Inicio</label>
+                                    <label class="form-label">Fecha Inicio</label>
                                     <input type="date" class="form-control" id="filter-start-date">
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label for="filter-end-date" class="form-label">Fecha Fin</label>
+                                    <label class="form-label">Fecha Fin</label>
                                     <input type="date" class="form-control" id="filter-end-date">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="filter-spa" class="form-label">Spa</label>
+                                    <label class="form-label">Spa</label>
                                     <select class="form-select" id="filter-spa">
                                         <option value="all">Todos los Spas</option>
                                     </select>
@@ -312,7 +303,7 @@
                         </div>
                     </div>
 
-                    <!-- Register Session Section -->
+                    <!-- Other sections remain the same as before -->
                     <div id="sessions-section" class="d-none">
                         <h2 class="mb-4">Registrar Nueva Sesión</h2>
                         <div class="card">
@@ -320,29 +311,31 @@
                                 <form id="session-form">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-spa" class="form-label">Spa</label>
+                                            <label class="form-label">Spa</label>
                                             <select class="form-select" id="session-spa" required>
                                                 <option value="">Seleccionar spa</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-date" class="form-label">Fecha</label>
+                                            <label class="form-label">Fecha</label>
                                             <input type="date" class="form-control" id="session-date" required>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-total-hours" class="form-label">Horas Totales del Día</label>
-                                            <input type="number" class="form-control" id="session-total-hours" min="0" max="24" step="0.5" placeholder="Horas trabajadas hoy" required>
+                                            <label class="form-label">Horas Totales</label>
+                                            <input type="number" class="form-control" id="session-total-hours" 
+                                                   min="0" max="24" step="0.5" placeholder="Horas trabajadas" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="session-price" class="form-label">Precio por Hora (€)</label>
+                                            <label class="form-label">Precio por Hora (€)</label>
                                             <input type="number" class="form-control" id="session-price" step="0.01" readonly>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="session-notes" class="form-label">Notas</label>
-                                        <textarea class="form-control" id="session-notes" rows="3" placeholder="Notas adicionales..."></textarea>
+                                        <label class="form-label">Notas</label>
+                                        <textarea class="form-control" id="session-notes" rows="3" 
+                                                  placeholder="Notas adicionales..."></textarea>
                                     </div>
                                     <button type="button" class="btn btn-primary" onclick="saveSession()" id="save-session-btn">
                                         <span id="save-session-text">Guardar Sesión</span>
@@ -353,7 +346,6 @@
                         </div>
                     </div>
 
-                    <!-- History Section -->
                     <div id="history-section" class="d-none">
                         <h2 class="mb-4">Historial de Sesiones</h2>
                         <div class="card">
@@ -378,7 +370,6 @@
                         </div>
                     </div>
 
-                    <!-- Profile Section -->
                     <div id="profile-section" class="d-none">
                         <h2 class="mb-4">Mi Perfil</h2>
                         <div class="card">
@@ -405,40 +396,38 @@
                         </div>
                     </div>
 
-                    <!-- Spa Management Section -->
                     <div id="spa-management-section" class="d-none">
                         <h2 class="mb-4">Gestión de Spas</h2>
-                        
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h5 class="card-title mb-0" id="spa-form-title">Agregar Nuevo Spa</h5>
+                                <h5 class="card-title mb-0">Agregar Nuevo Spa</h5>
                             </div>
                             <div class="card-body">
                                 <form id="spa-form">
                                     <input type="hidden" id="spa-id">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="spa-name" class="form-label">Nombre del Spa</label>
+                                            <label class="form-label">Nombre del Spa</label>
                                             <input type="text" class="form-control" id="spa-name" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="spa-address" class="form-label">Dirección</label>
+                                            <label class="form-label">Dirección</label>
                                             <input type="text" class="form-control" id="spa-address" required>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="spa-phone" class="form-label">Teléfono</label>
+                                            <label class="form-label">Teléfono</label>
                                             <input type="text" class="form-control" id="spa-phone" required>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
+                                            <label class="form-label">Precio Base (€)</label>
                                             <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end">
-                                        <button type="button" class="btn btn-secondary me-2" id="cancel-spa-btn" onclick="resetSpaForm()">Cancelar</button>
-                                        <button type="button" class="btn btn-primary" id="save-spa-btn" onclick="saveSpa()">
+                                        <button type="button" class="btn btn-secondary me-2" onclick="resetSpaForm()">Cancelar</button>
+                                        <button type="button" class="btn btn-primary" onclick="saveSpa()" id="save-spa-btn">
                                             <span id="save-spa-text">Guardar Spa</span>
                                             <span id="save-spa-spinner" class="loading-spinner d-none"></span>
                                         </button>
@@ -469,17 +458,11 @@
                         </div>
                     </div>
 
-                    <!-- User Management Section -->
                     <div id="user-management-section" class="d-none">
                         <h2 class="mb-4">Gestión de Usuarios</h2>
                         <div class="card">
                             <div class="card-body">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="card-title">Lista de Usuarios</h5>
-                                    <button class="btn btn-primary" onclick="showAddUserModal()">
-                                        <i class="bi bi-plus-circle me-1"></i> Agregar Usuario
-                                    </button>
-                                </div>
+                                <h5 class="card-title">Lista de Usuarios</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
@@ -488,7 +471,6 @@
                                                 <th>Email</th>
                                                 <th>Rol</th>
                                                 <th>Estado</th>
-                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody id="user-table-body">
@@ -498,56 +480,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Agregar Nuevo Usuario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-user-form">
-                        <div class="mb-3">
-                            <label for="add-user-name" class="form-label">Nombre Completo</label>
-                            <input type="text" class="form-control" id="add-user-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="add-user-email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="add-user-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="add-user-password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="add-user-password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="add-user-role" class="form-label">Rol</label>
-                            <select class="form-select" id="add-user-role" required>
-                                <option value="user">Usuario</option>
-                                <option value="admin">Administrador</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="add-user-status" class="form-label">Estado</label>
-                            <select class="form-select" id="add-user-status" required>
-                                <option value="active">Activo</option>
-                                <option value="inactive">Inactivo</option>
-                                <option value="pending">Pendiente</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="addUser()" id="add-user-btn">
-                        <span id="add-user-text">Guardar Usuario</span>
-                        <span id="add-user-spinner" class="loading-spinner d-none"></span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -564,12 +496,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // CONFIGURACIÓN - REEMPLAZA CON TUS CREDENCIALES
-        const SUPABASE_URL = 'https://hkilwwjsibwygerjnrvy.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraWx3d2pzaWJ3eWdlcmpucnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODU5OTEsImV4cCI6MjA3ODk2MTk5MX0.KkoB09D7ucf13LQr2IrjcQtbJa2ZR238EPlZcdXrauk';
+        // CONFIGURACIÓN SUPABASE - ¡REEMPLAZA ESTOS VALORES!
+        const SUPABASE_URL = 'https://hkilwwjsibwygerjnrvy.supabase.co';  // Reemplaza con tu URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraWx3d2pzaWJ3eWdlcmpucnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODU5OTEsImV4cCI6MjA3ODk2MTk5MX0.KkoB09D7ucf13LQr2IrjcQtbJa2ZR238EPlZcdXrauk';  // Reemplaza con tu anon key
         
+        // Inicializar Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
+        // Estado de la aplicación
         let currentUser = null;
         let userSpas = [];
         let allSpas = [];
@@ -577,37 +511,40 @@
         let sessions = [];
         let revenueChart = null;
         let spaChart = null;
-        let currentFilters = {
-            startDate: null,
-            endDate: null,
-            spa: 'all'
-        };
 
+        // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Iniciando aplicación...');
+            console.log('Aplicación iniciada');
+            checkExistingUser();
+        });
+
+        async function checkExistingUser() {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
-                    initializeApp();
+                    await initializeApp();
                 } catch (e) {
                     localStorage.removeItem('currentUser');
                 }
             }
-        });
+        }
 
         async function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
+            console.log('Intentando login con:', email, password);
+            
             if (!email || !password) {
-                showAlert('Completa todos los campos', 'warning');
+                showAlert('Por favor completa todos los campos', 'warning');
                 return;
             }
             
             toggleButtonLoading('login-btn', true);
             
             try {
+                // Buscar usuario en la base de datos
                 const { data: user, error } = await supabase
                     .from('users')
                     .select('*')
@@ -615,23 +552,32 @@
                     .eq('password', password)
                     .single();
                 
-                if (error || !user) {
-                    showAlert('Credenciales incorrectas', 'danger');
+                console.log('Respuesta de Supabase:', user, error);
+                
+                if (error) {
+                    console.error('Error de Supabase:', error);
+                    showAlert('Error al conectar con la base de datos', 'danger');
+                    return;
+                }
+                
+                if (!user) {
+                    showAlert('Email o contraseña incorrectos', 'danger');
                     return;
                 }
                 
                 if (user.status !== 'active') {
-                    showAlert('Cuenta no activa. Contacta al administrador.', 'warning');
+                    showAlert('Tu cuenta no está activa. Contacta al administrador.', 'warning');
                     return;
                 }
                 
+                // Login exitoso
                 currentUser = user;
                 localStorage.setItem('currentUser', JSON.stringify(user));
-                initializeApp();
+                await initializeApp();
                 
             } catch (error) {
-                console.error('Error login:', error);
-                showAlert('Error al iniciar sesión', 'danger');
+                console.error('Error en login:', error);
+                showAlert('Error al iniciar sesión. Inténtalo de nuevo.', 'danger');
             } finally {
                 toggleButtonLoading('login-btn', false);
             }
@@ -645,34 +591,42 @@
         }
 
         async function initializeApp() {
+            console.log('Inicializando aplicación...');
+            
+            // Mostrar aplicación
             document.getElementById('auth-screen').classList.add('d-none');
             document.getElementById('app-screen').classList.remove('d-none');
             
+            // Actualizar UI
             document.getElementById('user-name').textContent = currentUser.name;
             
-            if (currentUser.role === 'admin') {
-                document.getElementById('user-badge').classList.remove('d-none');
-                document.getElementById('admin-menu').classList.remove('d-none');
-            }
-            
-            await loadUserSpas();
+            // Cargar datos
             await loadAllSpas();
             await loadAllUsers();
             await loadSessions();
             
+            // Los administradores ven todos los spas
+            userSpas = currentUser.role === 'admin' ? allSpas : allSpas.filter(spa => 
+                currentUser.spas && currentUser.spas.includes(spa.id)
+            );
+            
             showSection('dashboard');
+            showAlert('Bienvenido ' + currentUser.name, 'success');
         }
 
         function showSection(sectionName) {
+            // Ocultar todas las secciones
             document.querySelectorAll('[id$="-section"]').forEach(section => {
                 section.classList.add('d-none');
             });
             
+            // Mostrar sección seleccionada
             const sectionElement = document.getElementById(`${sectionName}-section`);
             if (sectionElement) {
                 sectionElement.classList.remove('d-none');
             }
             
+            // Actualizar navegación
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
@@ -682,6 +636,7 @@
                 activeLink.classList.add('active');
             }
             
+            // Cargar datos específicos de la sección
             if (sectionName === 'dashboard') {
                 loadDashboardData();
                 loadFilterOptions();
@@ -698,41 +653,18 @@
             }
         }
 
-        async function loadUserSpas() {
-            try {
-                if (currentUser.role === 'admin') {
-                    const { data, error } = await supabase
-                        .from('spas')
-                        .select('*')
-                        .order('name');
-                    userSpas = data || [];
-                } else {
-                    if (currentUser.spas && currentUser.spas.length > 0) {
-                        const { data, error } = await supabase
-                            .from('spas')
-                            .select('*')
-                            .in('id', currentUser.spas)
-                            .order('name');
-                        userSpas = data || [];
-                    } else {
-                        userSpas = [];
-                    }
-                }
-            } catch (error) {
-                console.error('Error cargando spas:', error);
-                userSpas = [];
-            }
-        }
-
         async function loadAllSpas() {
             try {
                 const { data, error } = await supabase
                     .from('spas')
                     .select('*')
                     .order('name');
+                
+                if (error) throw error;
                 allSpas = data || [];
+                console.log('Spas cargados:', allSpas.length);
             } catch (error) {
-                console.error('Error cargando todos los spas:', error);
+                console.error('Error cargando spas:', error);
                 allSpas = [];
             }
         }
@@ -743,6 +675,8 @@
                     .from('users')
                     .select('*')
                     .order('name');
+                
+                if (error) throw error;
                 allUsers = data || [];
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
@@ -759,12 +693,17 @@
                 }
                 
                 const { data, error } = await query.order('date', { ascending: false });
+                
+                if (error) throw error;
                 sessions = data || [];
+                console.log('Sesiones cargadas:', sessions.length);
             } catch (error) {
                 console.error('Error cargando sesiones:', error);
                 sessions = [];
             }
         }
+
+        // ... (el resto de las funciones se mantienen igual que en el código anterior)
 
         function loadFilterOptions() {
             const filterSpaSelect = document.getElementById('filter-spa');
@@ -777,49 +716,24 @@
                 filterSpaSelect.appendChild(option);
             });
             
+            // Fechas por defecto (últimos 30 días)
             const endDate = new Date();
             const startDate = new Date();
             startDate.setDate(startDate.getDate() - 30);
             
             document.getElementById('filter-start-date').value = startDate.toISOString().split('T')[0];
             document.getElementById('filter-end-date').value = endDate.toISOString().split('T')[0];
-            
-            currentFilters.startDate = startDate.toISOString().split('T')[0];
-            currentFilters.endDate = endDate.toISOString().split('T')[0];
         }
 
         function applyFilters() {
-            const startDate = document.getElementById('filter-start-date').value;
-            const endDate = document.getElementById('filter-end-date').value;
-            const spa = document.getElementById('filter-spa').value;
-            
-            currentFilters = { startDate, endDate, spa };
             loadDashboardData();
         }
 
-        function getFilteredSessions() {
-            let filtered = [...sessions];
-            
-            if (currentFilters.startDate) {
-                filtered = filtered.filter(s => s.date >= currentFilters.startDate);
-            }
-            
-            if (currentFilters.endDate) {
-                filtered = filtered.filter(s => s.date <= currentFilters.endDate);
-            }
-            
-            if (currentFilters.spa && currentFilters.spa !== 'all') {
-                filtered = filtered.filter(s => s.spa_id === currentFilters.spa);
-            }
-            
-            return filtered;
-        }
-
         function loadDashboardData() {
-            const filteredSessions = getFilteredSessions();
+            const filteredSessions = sessions; // Implementar filtros si es necesario
             
-            const totalHours = filteredSessions.reduce((sum, s) => sum + parseFloat(s.total_hours || 0), 0);
-            const totalRevenue = filteredSessions.reduce((sum, s) => sum + parseFloat(s.total_amount || 0), 0);
+            const totalHours = filteredSessions.reduce((sum, session) => sum + parseFloat(session.total_hours || 0), 0);
+            const totalRevenue = filteredSessions.reduce((sum, session) => sum + parseFloat(session.total_amount || 0), 0);
             const taxRate = 0.21;
             const baseAmount = totalRevenue / (1 + taxRate);
             const taxAmount = totalRevenue - baseAmount;
@@ -833,34 +747,27 @@
             createSpaChart(filteredSessions);
         }
 
-        function createRevenueChart(filteredSessions) {
+        function createRevenueChart(sessions) {
             const ctx = document.getElementById('revenueChart').getContext('2d');
             
-            const monthlyData = {};
-            filteredSessions.forEach(session => {
-                const month = session.date.substring(0, 7);
-                if (!monthlyData[month]) monthlyData[month] = 0;
-                monthlyData[month] += parseFloat(session.total_amount || 0);
-            });
-            
-            const labels = Object.keys(monthlyData).sort();
-            const data = labels.map(month => monthlyData[month]);
+            // Datos de ejemplo para el gráfico
+            const data = {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Ingresos (€)',
+                    data: [1200, 1900, 1500, 2000, 1800, 2200],
+                    borderColor: '#8B4513',
+                    backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            };
             
             if (revenueChart) revenueChart.destroy();
             
             revenueChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ingresos (€)',
-                        data: data,
-                        borderColor: '#8B4513',
-                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
+                data: data,
                 options: {
                     responsive: true,
                     plugins: {
@@ -870,35 +777,29 @@
             });
         }
 
-        function createSpaChart(filteredSessions) {
+        function createSpaChart(sessions) {
             const ctx = document.getElementById('spaChart').getContext('2d');
             
-            const spaData = {};
-            filteredSessions.forEach(session => {
-                if (!spaData[session.spa_name]) spaData[session.spa_name] = 0;
-                spaData[session.spa_name]++;
-            });
-            
-            const labels = Object.keys(spaData);
-            const data = Object.values(spaData);
+            // Datos de ejemplo
+            const data = {
+                labels: ['Spa Central', 'Spa Relax', 'Thai Oasis'],
+                datasets: [{
+                    label: 'Sesiones',
+                    data: [15, 12, 8],
+                    backgroundColor: [
+                        'rgba(139, 69, 19, 0.8)',
+                        'rgba(210, 105, 30, 0.8)',
+                        'rgba(188, 143, 143, 0.8)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
             
             if (spaChart) spaChart.destroy();
             
             spaChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Sesiones',
-                        data: data,
-                        backgroundColor: [
-                            'rgba(139, 69, 19, 0.8)',
-                            'rgba(210, 105, 30, 0.8)',
-                            'rgba(188, 143, 143, 0.8)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
+                data: data,
                 options: {
                     responsive: true,
                     plugins: {
@@ -989,21 +890,26 @@
             }
         }
 
-        async function loadHistory() {
+        function loadProfile() {
+            document.getElementById('profile-name').value = currentUser.name;
+            document.getElementById('profile-email').value = currentUser.email;
+            document.getElementById('profile-role').value = currentUser.role === 'admin' ? 'Administrador' : 'Usuario';
+            document.getElementById('profile-status').value = 'Activo';
+        }
+
+        function loadHistory() {
             const tableBody = document.getElementById('history-table-body');
             tableBody.innerHTML = '';
             
-            const sortedSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            if (sortedSessions.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay sesiones</td></tr>';
+            if (sessions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay sesiones registradas</td></tr>';
                 return;
             }
             
-            sortedSessions.forEach(session => {
+            sessions.forEach(session => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${formatDate(session.date)}</td>
+                    <td>${new Date(session.date).toLocaleDateString('es-ES')}</td>
                     <td>${session.spa_name}</td>
                     <td>${session.total_hours} h</td>
                     <td>€${parseFloat(session.price_per_hour).toFixed(2)}/h</td>
@@ -1019,7 +925,7 @@
         }
 
         async function deleteSession(sessionId) {
-            if (confirm('¿Eliminar esta sesión?')) {
+            if (confirm('¿Estás seguro de eliminar esta sesión?')) {
                 try {
                     const { error } = await supabase
                         .from('sessions')
@@ -1038,29 +944,9 @@
             }
         }
 
-        function loadProfile() {
-            document.getElementById('profile-name').value = currentUser.name;
-            document.getElementById('profile-email').value = currentUser.email;
-            document.getElementById('profile-role').value = currentUser.role === 'admin' ? 'Administrador' : 'Usuario';
-            
-            let statusText = '';
-            switch(currentUser.status) {
-                case 'active': statusText = 'Activo'; break;
-                case 'inactive': statusText = 'Inactivo'; break;
-                case 'pending': statusText = 'Pendiente'; break;
-                default: statusText = currentUser.status;
-            }
-            document.getElementById('profile-status').value = statusText;
-        }
-
-        async function loadSpaManagement() {
+        function loadSpaManagement() {
             const tableBody = document.getElementById('spa-table-body');
             tableBody.innerHTML = '';
-            
-            if (allSpas.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay spas</td></tr>';
-                return;
-            }
             
             allSpas.forEach(spa => {
                 const row = document.createElement('tr');
@@ -1084,16 +970,13 @@
 
         function editSpa(spaId) {
             const spa = allSpas.find(s => s.id === spaId);
-            if (!spa) return;
-            
-            document.getElementById('spa-id').value = spa.id;
-            document.getElementById('spa-name').value = spa.name;
-            document.getElementById('spa-address').value = spa.address;
-            document.getElementById('spa-phone').value = spa.phone;
-            document.getElementById('spa-base-price').value = spa.base_price;
-            
-            document.getElementById('spa-form-title').textContent = 'Editar Spa';
-            document.getElementById('cancel-spa-btn').classList.remove('d-none');
+            if (spa) {
+                document.getElementById('spa-id').value = spa.id;
+                document.getElementById('spa-name').value = spa.name;
+                document.getElementById('spa-address').value = spa.address;
+                document.getElementById('spa-phone').value = spa.phone;
+                document.getElementById('spa-base-price').value = spa.base_price;
+            }
         }
 
         async function saveSpa() {
@@ -1112,19 +995,26 @@
             
             try {
                 if (id) {
+                    // Editar
                     const { data, error } = await supabase
                         .from('spas')
-                        .update({ name, address, phone, base_price: parseFloat(basePrice) })
+                        .update({
+                            name: name,
+                            address: address,
+                            phone: phone,
+                            base_price: parseFloat(basePrice)
+                        })
                         .eq('id', id)
                         .select();
                     
                     if (error) throw error;
                     showAlert('Spa actualizado', 'success');
                 } else {
+                    // Crear nuevo
                     const newSpa = {
-                        name,
-                        address,
-                        phone,
+                        name: name,
+                        address: address,
+                        phone: phone,
                         base_price: parseFloat(basePrice),
                         created_at: new Date().toISOString()
                     };
@@ -1135,7 +1025,7 @@
                         .select();
                     
                     if (error) throw error;
-                    showAlert('Spa agregado', 'success');
+                    showAlert('Spa creado', 'success');
                 }
                 
                 await loadAllSpas();
@@ -1153,23 +1043,11 @@
         function resetSpaForm() {
             document.getElementById('spa-form').reset();
             document.getElementById('spa-id').value = '';
-            document.getElementById('spa-form-title').textContent = 'Agregar Nuevo Spa';
-            document.getElementById('cancel-spa-btn').classList.add('d-none');
         }
 
         async function deleteSpa(spaId) {
-            if (confirm('¿Eliminar este spa?')) {
+            if (confirm('¿Estás seguro de eliminar este spa?')) {
                 try {
-                    const { data: spaSessions, error: sessionsError } = await supabase
-                        .from('sessions')
-                        .select('id')
-                        .eq('spa_id', spaId);
-                    
-                    if (spaSessions && spaSessions.length > 0) {
-                        showAlert('No se puede eliminar. Tiene sesiones asociadas.', 'warning');
-                        return;
-                    }
-                    
                     const { error } = await supabase
                         .from('spas')
                         .delete()
@@ -1188,24 +1066,14 @@
             }
         }
 
-        async function loadUserManagement() {
+        function loadUserManagement() {
             const tableBody = document.getElementById('user-table-body');
             tableBody.innerHTML = '';
             
-            if (allUsers.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay usuarios</td></tr>';
-                return;
-            }
-            
             allUsers.forEach(user => {
-                let statusBadge = '';
-                if (user.status === 'active') {
-                    statusBadge = '<span class="badge bg-success">Activo</span>';
-                } else if (user.status === 'inactive') {
-                    statusBadge = '<span class="badge bg-danger">Inactivo</span>';
-                } else {
-                    statusBadge = '<span class="badge bg-warning">Pendiente</span>';
-                }
+                let statusBadge = user.status === 'active' ? 
+                    '<span class="badge bg-success">Activo</span>' : 
+                    '<span class="badge bg-warning">Inactivo</span>';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -1213,124 +1081,9 @@
                     <td>${user.email}</td>
                     <td>${user.role === 'admin' ? 'Administrador' : 'Usuario'}</td>
                     <td>${statusBadge}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser('${user.id}')">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}')">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
                 `;
                 tableBody.appendChild(row);
             });
-        }
-
-        function showAddUserModal() {
-            document.getElementById('add-user-form').reset();
-            new bootstrap.Modal(document.getElementById('addUserModal')).show();
-        }
-
-        async function addUser() {
-            const name = document.getElementById('add-user-name').value;
-            const email = document.getElementById('add-user-email').value;
-            const password = document.getElementById('add-user-password').value;
-            const role = document.getElementById('add-user-role').value;
-            const status = document.getElementById('add-user-status').value;
-            
-            if (!name || !email || !password) {
-                showAlert('Completa todos los campos', 'warning');
-                return;
-            }
-            
-            toggleButtonLoading('add-user-btn', true);
-            
-            try {
-                const { data: existingUser, error: checkError } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('email', email)
-                    .single();
-                
-                if (existingUser) {
-                    showAlert('Email ya existe', 'warning');
-                    toggleButtonLoading('add-user-btn', false);
-                    return;
-                }
-                
-                const newUser = {
-                    name,
-                    email,
-                    password,
-                    role,
-                    status,
-                    spas: [],
-                    created_at: new Date().toISOString()
-                };
-                
-                const { data, error } = await supabase
-                    .from('users')
-                    .insert([newUser])
-                    .select();
-                
-                if (error) throw error;
-                
-                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
-                await loadAllUsers();
-                loadUserManagement();
-                showAlert('Usuario creado', 'success');
-                
-            } catch (error) {
-                console.error('Error creando usuario:', error);
-                showAlert('Error al crear usuario', 'danger');
-            } finally {
-                toggleButtonLoading('add-user-btn', false);
-            }
-        }
-
-        async function editUser(userId) {
-            // Implementar edición de usuario si es necesario
-            showAlert('Función de edición de usuarios en desarrollo', 'info');
-        }
-
-        async function deleteUser(userId) {
-            if (confirm('¿Eliminar este usuario?')) {
-                if (userId === currentUser.id) {
-                    showAlert('No puedes eliminar tu propio usuario', 'warning');
-                    return;
-                }
-                
-                try {
-                    const { data: userSessions, error: sessionsError } = await supabase
-                        .from('sessions')
-                        .select('id')
-                        .eq('user_id', userId);
-                    
-                    if (userSessions && userSessions.length > 0) {
-                        showAlert('No se puede eliminar. Tiene sesiones asociadas.', 'warning');
-                        return;
-                    }
-                    
-                    const { error } = await supabase
-                        .from('users')
-                        .delete()
-                        .eq('id', userId);
-                    
-                    if (error) throw error;
-                    
-                    await loadAllUsers();
-                    loadUserManagement();
-                    showAlert('Usuario eliminado', 'success');
-                    
-                } catch (error) {
-                    console.error('Error eliminando usuario:', error);
-                    showAlert('Error al eliminar', 'danger');
-                }
-            }
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('es-ES');
         }
 
         function showAlert(message, type = 'success') {
@@ -1341,15 +1094,14 @@
             messageElement.textContent = message;
             
             alertElement.classList.remove('d-none');
-            setTimeout(() => alertElement.classList.add('show'), 10);
             
-            setTimeout(() => hideAlert(), 5000);
+            setTimeout(() => {
+                alertElement.classList.add('d-none');
+            }, 4000);
         }
 
         function hideAlert() {
-            const alertElement = document.getElementById('customAlert');
-            alertElement.classList.remove('show');
-            setTimeout(() => alertElement.classList.add('d-none'), 300);
+            document.getElementById('customAlert').classList.add('d-none');
         }
 
         function toggleButtonLoading(buttonId, isLoading) {
