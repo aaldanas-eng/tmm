@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai Massage Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2691E;
+            --light-color: #F5F5DC;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        .sidebar {
+            background-color: var(--light-color);
+            min-height: calc(100vh - 56px);
+        }
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .login-container {
+            background: linear-gradient(rgba(139, 69, 19, 0.8), rgba(210, 105, 30, 0.8)), 
+                        url('https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3') center/cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card {
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login/Register Screen -->
+    <div id="auth-screen" class="login-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="login-card p-4">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold" style="color: var(--primary-color);">Thai Massage Manager</h2>
+                            <p class="text-muted">Gestión integral para centros de masaje tailandés</p>
+                        </div>
+                        
+                        <div id="login-form">
+                            <h4 class="mb-3">Iniciar Sesión</h4>
+                            <div class="mb-3">
+                                <label for="login-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="login-email" placeholder="admin@thaimassage.com" value="admin@thaimassage.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="login-password" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="login-password" placeholder="••••••••" value="admin123">
+                            </div>
+                            <button class="btn btn-primary w-100 mb-3" onclick="login()">Iniciar Sesión</button>
+                            <div class="text-center mb-3">
+                                <small class="text-muted">Usuario demo: admin@thaimassage.com / admin123</small>
+                            </div>
+                            <p class="text-center">¿No tienes cuenta? <a href="#" onclick="toggleAuthForm()">Regístrate aquí</a></p>
+                        </div>
+                        
+                        <div id="register-form" class="d-none">
+                            <h4 class="mb-3">Crear Cuenta</h4>
+                            <div class="mb-3">
+                                <label for="register-name" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="register-name" placeholder="Tu nombre">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="register-email" placeholder="tu@email.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-password" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="register-password" placeholder="••••••••">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-confirm-password" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="register-confirm-password" placeholder="••••••••">
+                            </div>
+                            <button class="btn btn-primary w-100 mb-3" onclick="register()">Crear Cuenta</button>
+                            <p class="text-center">¿Ya tienes cuenta? <a href="#" onclick="toggleAuthForm()">Inicia sesión aquí</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app-screen" class="d-none">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#">
+                    <i class="bi bi-flower1 me-2"></i>Thai Massage Manager
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i> <span id="user-name">Usuario</span>
+                                <span id="user-badge" class="badge bg-warning ms-1 d-none">Admin</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3 col-lg-2 sidebar p-0">
+                    <div class="d-flex flex-column flex-shrink-0 p-3">
+                        <ul class="nav nav-pills flex-column mb-auto">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-link text-dark" onclick="showSection('sessions')">
+                                    <i class="bi bi-calendar-plus me-2"></i> Registrar Sesión
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="nav-link text-dark" onclick="showSection('history')">
+                                    <i class="bi bi-clock-history me-2"></i> Historial
+                                </a>
+                            </li>
+                            <li id="admin-menu" class="d-none">
+                                <hr>
+                                <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">Administración</h6>
+                                <a href="#" class="nav-link text-dark" onclick="showSection('spa-management')">
+                                    <i class="bi bi-building me-2"></i> Gestión de Spas
+                                </a>
+                                <a href="#" class="nav-link text-dark" onclick="showSection('user-management')">
+                                    <i class="bi bi-people me-2"></i> Gestión de Usuarios
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-md-9 col-lg-10 ml-sm-auto px-4 py-4">
+                    <!-- Dashboard Section -->
+                    <div id="dashboard-section">
+                        <h2 class="mb-4">Dashboard</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-3">
+                                <div class="card stat-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="card-title text-muted">Sesiones Hoy</h5>
+                                                <h3 class="text-primary" id="today-sessions">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card stat-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="card-title text-muted">Ingresos Hoy</h5>
+                                                <h3 class="text-success" id="today-revenue">€0.00</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="bi bi-currency-euro fs-1 text-success"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card stat-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="card-title text-muted">Sesiones Mes</h5>
+                                                <h3 class="text-info" id="month-sessions">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="bi bi-graph-up fs-1 text-info"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card stat-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="card-title text-muted">Ingresos Mes</h5>
+                                                <h3 class="text-warning" id="month-revenue">€0.00</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="bi bi-piggy-bank fs-1 text-warning"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Ingresos Mensuales</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="revenueChart" height="250"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Sesiones por Spa</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="spaChart" height="250"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Register Session Section -->
+                    <div id="sessions-section" class="d-none">
+                        <h2 class="mb-4">Registrar Nueva Sesión</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="session-form">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-spa" class="form-label">Spa</label>
+                                            <select class="form-select" id="session-spa" required>
+                                                <option value="">Seleccionar spa</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-date" class="form-label">Fecha</label>
+                                            <input type="date" class="form-control" id="session-date" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-client" class="form-label">Cliente</label>
+                                            <input type="text" class="form-control" id="session-client" placeholder="Nombre del cliente" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-duration" class="form-label">Duración (minutos)</label>
+                                            <input type="number" class="form-control" id="session-duration" value="60" min="30" step="30" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-type" class="form-label">Tipo de Masaje</label>
+                                            <select class="form-select" id="session-type" required>
+                                                <option value="tradicional">Tradicional Tailandés</option>
+                                                <option value="aceite">Masaje con Aceite</option>
+                                                <option value="piedras">Masaje con Piedras Calientes</option>
+                                                <option value="pies">Masaje de Pies</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="session-price" class="form-label">Precio (€)</label>
+                                            <input type="number" class="form-control" id="session-price" step="0.01" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="session-notes" class="form-label">Notas</label>
+                                        <textarea class="form-control" id="session-notes" rows="3" placeholder="Notas adicionales..."></textarea>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="saveSession()">Guardar Sesión</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History Section -->
+                    <div id="history-section" class="d-none">
+                        <h2 class="mb-4">Historial de Sesiones</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Cliente</th>
+                                                <th>Spa</th>
+                                                <th>Tipo</th>
+                                                <th>Duración</th>
+                                                <th>Precio</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="history-table-body">
+                                            <!-- Las sesiones se cargarán aquí -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Section -->
+                    <div id="profile-section" class="d-none">
+                        <h2 class="mb-4">Mi Perfil</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="profile-form">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profile-name" class="form-label">Nombre Completo</label>
+                                            <input type="text" class="form-control" id="profile-name" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="profile-email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="profile-email" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="profile-spas" class="form-label">Spas Asignados</label>
+                                        <div id="profile-spas-list">
+                                            <!-- Los spas se cargarán aquí -->
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="profile-role" class="form-label">Rol</label>
+                                        <input type="text" class="form-control" id="profile-role" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="profile-status" class="form-label">Estado</label>
+                                        <input type="text" class="form-control" id="profile-status" readonly>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="updateProfile()">Actualizar Perfil</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spa Management Section (Admin only) -->
+                    <div id="spa-management-section" class="d-none">
+                        <h2 class="mb-4">Gestión de Spas</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5 class="card-title">Lista de Spas</h5>
+                                    <button class="btn btn-primary" onclick="showAddSpaModal()">
+                                        <i class="bi bi-plus-circle me-1"></i> Agregar Spa
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Dirección</th>
+                                                <th>Teléfono</th>
+                                                <th>Precio Base</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="spa-table-body">
+                                            <!-- Los spas se cargarán aquí -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Management Section (Admin only) -->
+                    <div id="user-management-section" class="d-none">
+                        <h2 class="mb-4">Gestión de Usuarios</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Email</th>
+                                                <th>Rol</th>
+                                                <th>Spas Asignados</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="user-table-body">
+                                            <!-- Los usuarios se cargarán aquí -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-user-form">
+                        <input type="hidden" id="edit-user-id">
+                        <div class="mb-3">
+                            <label for="edit-user-name" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="edit-user-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit-user-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-role" class="form-label">Rol</label>
+                            <select class="form-select" id="edit-user-role" required>
+                                <option value="user">Usuario</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Spas Asignados</label>
+                            <div id="edit-user-spas-checkboxes">
+                                <!-- Las opciones de spas se cargarán aquí -->
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-status" class="form-label">Estado</label>
+                            <select class="form-select" id="edit-user-status" required>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                                <option value="pending">Pendiente de Aprobación</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUser()">Actualizar Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Spa Modal -->
+    <div class="modal fade" id="addSpaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nuevo Spa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-spa-form">
+                        <div class="mb-3">
+                            <label for="spa-name" class="form-label">Nombre del Spa</label>
+                            <input type="text" class="form-control" id="spa-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-address" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="spa-address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-phone" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="spa-phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
+                            <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addSpa()">Guardar Spa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Estado de la aplicación
+        let currentUser = null;
+        let userSpas = [];
+        let allSpas = [];
+        let allUsers = [];
+        let sessions = [];
+        let revenueChart = null;
+        let spaChart = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado - inicializando aplicación');
+            
+            // Inicializar datos por defecto
+            initializeDefaultData();
+            
+            // Verificar si hay un usuario logueado
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    console.log('Usuario encontrado en localStorage:', currentUser);
+                    initializeApp();
+                } catch (e) {
+                    console.error('Error al parsear usuario:', e);
+                    localStorage.removeItem('currentUser');
+                }
+            } else {
+                console.log('No hay usuario en localStorage');
+            }
+        });
+
+        // Inicializar datos por defecto
+        function initializeDefaultData() {
+            console.log('Inicializando datos por defecto');
+            
+            // Verificar si ya existen datos
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
+            
+            // Crear usuario admin por defecto si no existe
+            if (!users.find(u => u.role === 'admin')) {
+                console.log('Creando usuario admin por defecto');
+                const defaultAdmin = {
+                    id: generateId(),
+                    name: 'Administrador',
+                    email: 'admin@thaimassage.com',
+                    password: 'admin123',
+                    role: 'admin',
+                    status: 'active',
+                    spas: [],
+                    createdAt: new Date().toISOString()
+                };
+                users.push(defaultAdmin);
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            // Crear algunos spas de ejemplo si no existen
+            if (spas.length === 0) {
+                console.log('Creando spas por defecto');
+                const defaultSpas = [
+                    {
+                        id: generateId(),
+                        name: 'Thai Spa Central',
+                        address: 'Calle Principal 123, Madrid',
+                        phone: '+34 91 123 4567',
+                        basePrice: 60.00,
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: generateId(),
+                        name: 'Zen Thai Massage',
+                        address: 'Avenida Libertad 45, Barcelona',
+                        phone: '+34 93 987 6543',
+                        basePrice: 55.00,
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('spas', JSON.stringify(defaultSpas));
+            }
+            
+            console.log('Datos inicializados correctamente');
+        }
+
+        // Funciones de autenticación
+        function toggleAuthForm() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            
+            if (loginForm.classList.contains('d-none')) {
+                loginForm.classList.remove('d-none');
+                registerForm.classList.add('d-none');
+            } else {
+                loginForm.classList.add('d-none');
+                registerForm.classList.remove('d-none');
+            }
+        }
+
+        function login() {
+            console.log('Intentando login...');
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            // En una aplicación real, esto haría una llamada a la API
+            // Por ahora, simulamos la autenticación
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            console.log('Usuarios en sistema:', users);
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // Verificar si el usuario está activo
+                if (user.status !== 'active') {
+                    alert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.');
+                    return;
+                }
+                
+                console.log('Usuario autenticado:', user);
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                initializeApp();
+            } else {
+                console.log('Credenciales incorrectas');
+                alert('Email o contraseña incorrectos');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            // En una aplicación real, esto haría una llamada a la API
+            // Por ahora, guardamos en localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Verificar si el usuario ya existe
+            if (users.find(u => u.email === email)) {
+                alert('Ya existe un usuario con este email');
+                return;
+            }
+            
+            const newUser = {
+                id: generateId(),
+                name: name,
+                email: email,
+                password: password,
+                role: 'user',
+                status: 'pending', // Nuevo estado: pendiente de aprobación
+                spas: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            alert('Cuenta creada exitosamente. Debes esperar la aprobación del administrador para acceder al sistema.');
+            toggleAuthForm();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('auth-screen').classList.remove('d-none');
+            document.getElementById('app-screen').classList.add('d-none');
+        }
+
+        // Inicialización de la aplicación
+        function initializeApp() {
+            console.log('Inicializando aplicación para usuario:', currentUser);
+            
+            document.getElementById('auth-screen').classList.add('d-none');
+            document.getElementById('app-screen').classList.remove('d-none');
+            
+            // Mostrar nombre de usuario
+            document.getElementById('user-name').textContent = currentUser.name;
+            
+            // Mostrar badge de admin si corresponde
+            const userBadge = document.getElementById('user-badge');
+            if (currentUser.role === 'admin') {
+                userBadge.classList.remove('d-none');
+                document.getElementById('admin-menu').classList.remove('d-none');
+            } else {
+                userBadge.classList.add('d-none');
+                document.getElementById('admin-menu').classList.add('d-none');
+            }
+            
+            // Cargar datos
+            loadUserSpas();
+            loadAllSpas();
+            loadAllUsers();
+            loadSessions();
+            
+            // Mostrar dashboard por defecto
+            showSection('dashboard');
+            
+            console.log('Aplicación inicializada correctamente');
+        }
+
+        // Navegación entre secciones
+        function showSection(sectionName) {
+            console.log('Mostrando sección:', sectionName);
+            
+            // Ocultar todas las secciones
+            document.querySelectorAll('[id$="-section"]').forEach(section => {
+                section.classList.add('d-none');
+            });
+            
+            // Mostrar la sección seleccionada
+            const sectionElement = document.getElementById(`${sectionName}-section`);
+            if (sectionElement) {
+                sectionElement.classList.remove('d-none');
+            } else {
+                console.error('Sección no encontrada:', sectionName);
+            }
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Cargar datos específicos de la sección
+            if (sectionName === 'dashboard') {
+                loadDashboardData();
+            } else if (sectionName === 'sessions') {
+                loadSessionForm();
+            } else if (sectionName === 'history') {
+                loadHistory();
+            } else if (sectionName === 'profile') {
+                loadProfile();
+            } else if (sectionName === 'spa-management') {
+                loadSpaManagement();
+            } else if (sectionName === 'user-management') {
+                loadUserManagement();
+            }
+        }
+
+        function showProfile() {
+            showSection('profile');
+        }
+
+        // Gestión de Spas
+        function loadUserSpas() {
+            // En una aplicación real, esto haría una llamada a la API
+            // Por ahora, cargamos desde localStorage
+            const allSpasData = JSON.parse(localStorage.getItem('spas') || '[]');
+            
+            if (currentUser.role === 'admin') {
+                userSpas = allSpasData;
+            } else {
+                userSpas = allSpasData.filter(spa => 
+                    currentUser.spas && currentUser.spas.includes(spa.id)
+                );
+            }
+            
+            console.log('Spas del usuario:', userSpas);
+        }
+
+        function loadAllSpas() {
+            allSpas = JSON.parse(localStorage.getItem('spas') || '[]');
+            console.log('Todos los spas:', allSpas);
+        }
+
+        function loadAllUsers() {
+            allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            console.log('Todos los usuarios:', allUsers);
+        }
+
+        function loadSessions() {
+            const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
+            
+            if (currentUser.role === 'admin') {
+                sessions = sessionsData;
+            } else {
+                sessions = sessionsData.filter(session => session.userId === currentUser.id);
+            }
+            
+            console.log('Sesiones cargadas:', sessions.length);
+        }
+
+        // Dashboard
+        function loadDashboardData() {
+            console.log('Cargando dashboard...');
+            
+            // Calcular estadísticas
+            const today = new Date().toISOString().split('T')[0];
+            const thisMonth = new Date().getMonth();
+            const thisYear = new Date().getFullYear();
+            
+            const todaySessions = sessions.filter(s => s.date === today);
+            const monthSessions = sessions.filter(s => {
+                const sessionDate = new Date(s.date);
+                return sessionDate.getMonth() === thisMonth && sessionDate.getFullYear() === thisYear;
+            });
+            
+            const todayRevenue = todaySessions.reduce((sum, session) => sum + parseFloat(session.price), 0);
+            const monthRevenue = monthSessions.reduce((sum, session) => sum + parseFloat(session.price), 0);
+            
+            // Actualizar estadísticas
+            document.getElementById('today-sessions').textContent = todaySessions.length;
+            document.getElementById('today-revenue').textContent = `€${todayRevenue.toFixed(2)}`;
+            document.getElementById('month-sessions').textContent = monthSessions.length;
+            document.getElementById('month-revenue').textContent = `€${monthRevenue.toFixed(2)}`;
+            
+            // Crear gráficos
+            createRevenueChart();
+            createSpaChart();
+        }
+
+        function createRevenueChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Datos de ejemplo para el gráfico de ingresos
+            const revenueData = {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                datasets: [{
+                    label: 'Ingresos (€)',
+                    data: [1200, 1900, 1500, 2100, 1800, 2400, 2200, 2600, 2300, 2800, 2500, 3000],
+                    borderColor: '#8B4513',
+                    backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            };
+            
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+            
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: revenueData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function createSpaChart() {
+            const ctx = document.getElementById('spaChart').getContext('2d');
+            
+            // Datos de ejemplo para el gráfico de spas
+            const spaData = {
+                labels: ['Thai Spa Central', 'Zen Thai Massage', 'Spa Oriental', 'Massage Palace'],
+                datasets: [{
+                    label: 'Sesiones',
+                    data: [12, 19, 8, 15],
+                    backgroundColor: [
+                        'rgba(139, 69, 19, 0.8)',
+                        'rgba(210, 105, 30, 0.8)',
+                        'rgba(188, 143, 143, 0.8)',
+                        'rgba(160, 82, 45, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(139, 69, 19)',
+                        'rgb(210, 105, 30)',
+                        'rgb(188, 143, 143)',
+                        'rgb(160, 82, 45)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            
+            if (spaChart) {
+                spaChart.destroy();
+            }
+            
+            spaChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: spaData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Registrar Sesión
+        function loadSessionForm() {
+            console.log('Cargando formulario de sesión...');
+            
+            const spaSelect = document.getElementById('session-spa');
+            spaSelect.innerHTML = '<option value="">Seleccionar spa</option>';
+            
+            // Llenar select de spas
+            userSpas.forEach(spa => {
+                const option = document.createElement('option');
+                option.value = spa.id;
+                option.textContent = spa.name;
+                spaSelect.appendChild(option);
+            });
+            
+            // Establecer fecha actual por defecto
+            document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+            
+            // Establecer precio base cuando se selecciona un spa
+            spaSelect.addEventListener('change', function() {
+                const selectedSpa = userSpas.find(spa => spa.id === this.value);
+                if (selectedSpa) {
+                    document.getElementById('session-price').value = selectedSpa.basePrice;
+                }
+            });
+            
+            // Si hay spas disponibles, seleccionar el primero
+            if (userSpas.length > 0) {
+                spaSelect.value = userSpas[0].id;
+                document.getElementById('session-price').value = userSpas[0].basePrice;
+            }
+        }
+
+        function saveSession() {
+            const spaId = document.getElementById('session-spa').value;
+            const date = document.getElementById('session-date').value;
+            const client = document.getElementById('session-client').value;
+            const duration = document.getElementById('session-duration').value;
+            const type = document.getElementById('session-type').value;
+            const price = document.getElementById('session-price').value;
+            const notes = document.getElementById('session-notes').value;
+            
+            if (!spaId || !date || !client || !duration || !type || !price) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            const selectedSpa = userSpas.find(spa => spa.id === spaId);
+            
+            const newSession = {
+                id: generateId(),
+                spaId: spaId,
+                spaName: selectedSpa.name,
+                date: date,
+                client: client,
+                duration: parseInt(duration),
+                type: type,
+                price: parseFloat(price),
+                notes: notes,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Guardar en localStorage
+            const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
+            sessionsData.push(newSession);
+            localStorage.setItem('sessions', JSON.stringify(sessionsData));
+            
+            // Actualizar datos
+            loadSessions();
+            
+            // Limpiar formulario
+            document.getElementById('session-form').reset();
+            
+            // Restablecer valores por defecto
+            document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('session-duration').value = 60;
+            if (userSpas.length > 0) {
+                document.getElementById('session-spa').value = userSpas[0].id;
+                document.getElementById('session-price').value = userSpas[0].basePrice;
+            }
+            
+            alert('Sesión registrada exitosamente');
+        }
+
+        // Historial
+        function loadHistory() {
+            console.log('Cargando historial...');
+            
+            const tableBody = document.getElementById('history-table-body');
+            tableBody.innerHTML = '';
+            
+            // Ordenar sesiones por fecha (más recientes primero)
+            const sortedSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (sortedSessions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No hay sesiones registradas</td></tr>';
+                return;
+            }
+            
+            sortedSessions.forEach(session => {
+                const row = document.createElement('tr');
+                
+                // Determinar tipo de masaje
+                let typeText = '';
+                switch(session.type) {
+                    case 'tradicional': typeText = 'Tradicional Tailandés'; break;
+                    case 'aceite': typeText = 'Masaje con Aceite'; break;
+                    case 'piedras': typeText = 'Masaje con Piedras Calientes'; break;
+                    case 'pies': typeText = 'Masaje de Pies'; break;
+                    default: typeText = session.type;
+                }
+                
+                row.innerHTML = `
+                    <td>${formatDate(session.date)}</td>
+                    <td>${session.client}</td>
+                    <td>${session.spaName}</td>
+                    <td>${typeText}</td>
+                    <td>${session.duration} min</td>
+                    <td>€${parseFloat(session.price).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSession('${session.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteSession(sessionId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta sesión?')) {
+                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
+                const updatedSessions = sessionsData.filter(s => s.id !== sessionId);
+                localStorage.setItem('sessions', JSON.stringify(updatedSessions));
+                
+                // Actualizar datos
+                loadSessions();
+                loadHistory();
+                
+                alert('Sesión eliminada exitosamente');
+            }
+        }
+
+        // Perfil
+        function loadProfile() {
+            console.log('Cargando perfil...');
+            
+            document.getElementById('profile-name').value = currentUser.name;
+            document.getElementById('profile-email').value = currentUser.email;
+            document.getElementById('profile-role').value = currentUser.role === 'admin' ? 'Administrador' : 'Usuario';
+            
+            // Estado
+            let statusText = '';
+            switch(currentUser.status) {
+                case 'active': statusText = 'Activo'; break;
+                case 'inactive': statusText = 'Inactivo'; break;
+                case 'pending': statusText = 'Pendiente de Aprobación'; break;
+                default: statusText = currentUser.status;
+            }
+            document.getElementById('profile-status').value = statusText;
+            
+            // Spas asignados
+            const spasList = document.getElementById('profile-spas-list');
+            spasList.innerHTML = '';
+            
+            if (currentUser.spas && currentUser.spas.length > 0) {
+                currentUser.spas.forEach(spaId => {
+                    const spa = allSpas.find(s => s.id === spaId);
+                    if (spa) {
+                        const spaItem = document.createElement('div');
+                        spaItem.className = 'form-control mb-1';
+                        spaItem.textContent = spa.name;
+                        spasList.appendChild(spaItem);
+                    }
+                });
+            } else {
+                spasList.innerHTML = '<div class="text-muted">No tienes spas asignados</div>';
+            }
+        }
+
+        function updateProfile() {
+            const name = document.getElementById('profile-name').value;
+            const email = document.getElementById('profile-email').value;
+            
+            if (!name || !email) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            // Actualizar en localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                // Verificar si el email ya está en uso por otro usuario
+                const emailExists = users.find(u => u.email === email && u.id !== currentUser.id);
+                if (emailExists) {
+                    alert('Ya existe un usuario con este email');
+                    return;
+                }
+                
+                users[userIndex] = {
+                    ...users[userIndex],
+                    name: name,
+                    email: email
+                };
+                
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // Actualizar usuario actual
+                currentUser = users[userIndex];
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Actualizar nombre en la barra de navegación
+                document.getElementById('user-name').textContent = currentUser.name;
+                
+                alert('Perfil actualizado exitosamente');
+            }
+        }
+
+        // Gestión de Spas (Admin only)
+        function loadSpaManagement() {
+            console.log('Cargando gestión de spas...');
+            
+            const tableBody = document.getElementById('spa-table-body');
+            tableBody.innerHTML = '';
+            
+            if (allSpas.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay spas registrados</td></tr>';
+                return;
+            }
+            
+            allSpas.forEach(spa => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${spa.name}</td>
+                    <td>${spa.address}</td>
+                    <td>${spa.phone}</td>
+                    <td>€${parseFloat(spa.basePrice).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editSpa('${spa.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSpa('${spa.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showAddSpaModal() {
+            document.getElementById('add-spa-form').reset();
+            new bootstrap.Modal(document.getElementById('addSpaModal')).show();
+        }
+
+        function addSpa() {
+            const name = document.getElementById('spa-name').value;
+            const address = document.getElementById('spa-address').value;
+            const phone = document.getElementById('spa-phone').value;
+            const basePrice = document.getElementById('spa-base-price').value;
+            
+            if (!name || !address || !phone || !basePrice) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            const newSpa = {
+                id: generateId(),
+                name: name,
+                address: address,
+                phone: phone,
+                basePrice: parseFloat(basePrice),
+                createdAt: new Date().toISOString()
+            };
+            
+            // Guardar en localStorage
+            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
+            spas.push(newSpa);
+            localStorage.setItem('spas', JSON.stringify(spas));
+            
+            // Cerrar modal
+            bootstrap.Modal.getInstance(document.getElementById('addSpaModal')).hide();
+            
+            // Actualizar datos
+            loadAllSpas();
+            loadSpaManagement();
+            
+            alert('Spa agregado exitosamente');
+        }
+
+        function editSpa(spaId) {
+            // Implementar edición de spa
+            alert('Funcionalidad de edición de spa en desarrollo');
+        }
+
+        function deleteSpa(spaId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este spa?')) {
+                // Verificar si hay sesiones asociadas a este spa
+                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
+                const spaSessions = sessionsData.filter(s => s.spaId === spaId);
+                
+                if (spaSessions.length > 0) {
+                    alert('No se puede eliminar el spa porque tiene sesiones asociadas. Elimine primero las sesiones.');
+                    return;
+                }
+                
+                // Verificar si hay usuarios asignados a este spa
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const usersWithSpa = users.filter(u => u.spas && u.spas.includes(spaId));
+                
+                if (usersWithSpa.length > 0) {
+                    alert('No se puede eliminar el spa porque hay usuarios asignados a él. Reasigne primero los usuarios.');
+                    return;
+                }
+                
+                // Eliminar de localStorage
+                const spas = JSON.parse(localStorage.getItem('spas') || '[]');
+                const updatedSpas = spas.filter(s => s.id !== spaId);
+                localStorage.setItem('spas', JSON.stringify(updatedSpas));
+                
+                // Actualizar datos
+                loadAllSpas();
+                loadSpaManagement();
+                
+                alert('Spa eliminado exitosamente');
+            }
+        }
+
+        // Gestión de Usuarios (Admin only)
+        function loadUserManagement() {
+            const tableBody = document.getElementById('user-table-body');
+            if (!tableBody) {
+                console.error('No se encontró user-table-body');
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            if (allUsers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>';
+                return;
+            }
+            
+            // Mostrar usuarios en tabla
+            allUsers.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // Obtener nombres de spas asignados
+                const assignedSpaNames = user.spas ? 
+                    user.spas.map(spaId => {
+                        const spa = allSpas.find(s => s.id === spaId);
+                        return spa ? spa.name : '';
+                    }).filter(name => name).join(', ') : 'Ninguno';
+                
+                // Determinar badge de estado
+                let statusBadge = '';
+                if (user.status === 'active') {
+                    statusBadge = '<span class="badge bg-success">Activo</span>';
+                } else if (user.status === 'inactive') {
+                    statusBadge = '<span class="badge bg-danger">Inactivo</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-warning">Pendiente</span>';
+                }
+                
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role === 'admin' ? 'Administrador' : 'Usuario'}</td>
+                    <td>${assignedSpaNames}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser('${user.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('edit-user-id').value = user.id;
+            document.getElementById('edit-user-name').value = user.name;
+            document.getElementById('edit-user-email').value = user.email;
+            document.getElementById('edit-user-role').value = user.role;
+            document.getElementById('edit-user-status').value = user.status || 'pending';
+            
+            // Cargar checkboxes de spas
+            const editUserSpasCheckboxes = document.getElementById('edit-user-spas-checkboxes');
+            editUserSpasCheckboxes.innerHTML = '';
+            
+            allSpas.forEach(spa => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'form-check';
+                const isChecked = user.spas && user.spas.includes(spa.id);
+                checkboxDiv.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${spa.id}" id="edit-spa-${spa.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="edit-spa-${spa.id}">
+                        ${spa.name}
+                    </label>
+                `;
+                editUserSpasCheckboxes.appendChild(checkboxDiv);
+            });
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('editUserModal')).show();
+        }
+
+        function updateUser() {
+            const userId = document.getElementById('edit-user-id').value;
+            const name = document.getElementById('edit-user-name').value;
+            const email = document.getElementById('edit-user-email').value;
+            const role = document.getElementById('edit-user-role').value;
+            const status = document.getElementById('edit-user-status').value;
+            
+            if (!name || !email) {
+                alert('Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            // Obtener spas seleccionados
+            const selectedSpas = [];
+            document.querySelectorAll('#edit-user-spas-checkboxes input:checked').forEach(checkbox => {
+                selectedSpas.push(checkbox.value);
+            });
+            
+            // Actualizar en localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if (userIndex !== -1) {
+                // Verificar si el email ya está en uso por otro usuario
+                const emailExists = users.find(u => u.email === email && u.id !== userId);
+                if (emailExists) {
+                    alert('Ya existe un usuario con este email');
+                    return;
+                }
+                
+                users[userIndex] = {
+                    ...users[userIndex],
+                    name: name,
+                    email: email,
+                    role: role,
+                    status: status,
+                    spas: selectedSpas
+                };
+                
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // Cerrar modal
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                
+                // Recargar datos
+                loadAllUsers();
+                loadUserManagement();
+                
+                alert('Usuario actualizado exitosamente');
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+                // No permitir eliminar el propio usuario
+                if (userId === currentUser.id) {
+                    alert('No puedes eliminar tu propio usuario');
+                    return;
+                }
+                
+                // Verificar si hay sesiones asociadas a este usuario
+                const sessionsData = JSON.parse(localStorage.getItem('sessions') || '[]');
+                const userSessions = sessionsData.filter(s => s.userId === userId);
+                
+                if (userSessions.length > 0) {
+                    alert('No se puede eliminar el usuario porque tiene sesiones asociadas. Elimine primero las sesiones.');
+                    return;
+                }
+                
+                // Eliminar de localStorage
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const updatedUsers = users.filter(u => u.id !== userId);
+                localStorage.setItem('users', JSON.stringify(updatedUsers));
+                
+                // Actualizar datos
+                loadAllUsers();
+                loadUserManagement();
+                
+                alert('Usuario eliminado exitosamente');
+            }
+        }
+
+        // Funciones auxiliares
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatDate(dateString) {
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+    </script>
+</body>
+</html>
