@@ -61,6 +61,47 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        
+        /* Mejoras de responsividad */
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+            }
+            .stat-card .fs-1 {
+                font-size: 1.5rem !important;
+            }
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+            .card-body {
+                padding: 1rem;
+            }
+            .filter-section .row {
+                margin-bottom: 0.5rem;
+            }
+            .filter-section .mb-3 {
+                margin-bottom: 0.5rem !important;
+            }
+        }
+        
+        /* Notificación personalizada */
+        .custom-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .custom-alert.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -414,14 +455,47 @@
                     <!-- Spa Management Section (Admin only) -->
                     <div id="spa-management-section" class="d-none">
                         <h2 class="mb-4">Gestión de Spas</h2>
+                        
+                        <!-- Formulario para agregar/editar spa -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0" id="spa-form-title">Agregar Nuevo Spa</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="spa-form">
+                                    <input type="hidden" id="spa-id">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="spa-name" class="form-label">Nombre del Spa</label>
+                                            <input type="text" class="form-control" id="spa-name" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="spa-address" class="form-label">Dirección</label>
+                                            <input type="text" class="form-control" id="spa-address" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="spa-phone" class="form-label">Teléfono</label>
+                                            <input type="text" class="form-control" id="spa-phone" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
+                                            <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-secondary me-2" id="cancel-spa-btn" onclick="resetSpaForm()">Cancelar</button>
+                                        <button type="button" class="btn btn-primary" id="save-spa-btn" onclick="saveSpa()">Guardar Spa</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de spas -->
                         <div class="card">
                             <div class="card-body">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="card-title">Lista de Spas</h5>
-                                    <button class="btn btn-primary" onclick="showAddSpaModal()">
-                                        <i class="bi bi-plus-circle me-1"></i> Agregar Spa
-                                    </button>
-                                </div>
+                                <h5 class="card-title">Lista de Spas</h5>
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
@@ -479,42 +553,6 @@
     </div>
 
     <!-- Modals -->
-    <!-- Add Spa Modal -->
-    <div class="modal fade" id="addSpaModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Agregar Nuevo Spa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-spa-form">
-                        <div class="mb-3">
-                            <label for="spa-name" class="form-label">Nombre del Spa</label>
-                            <input type="text" class="form-control" id="spa-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-address" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="spa-address" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-phone" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="spa-phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="spa-base-price" class="form-label">Precio Base (€)</label>
-                            <input type="number" class="form-control" id="spa-base-price" step="0.01" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="addSpa()">Guardar Spa</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Add User Modal -->
     <div class="modal fade" id="addUserModal" tabindex="-1">
         <div class="modal-dialog">
@@ -615,6 +653,15 @@
                     <button type="button" class="btn btn-primary" onclick="updateUser()">Actualizar Usuario</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Notificación personalizada -->
+    <div id="customAlert" class="custom-alert alert alert-success d-none" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span id="alert-message">Operación completada exitosamente</span>
+            <button type="button" class="btn-close ms-auto" onclick="hideAlert()"></button>
         </div>
     </div>
 
@@ -730,7 +777,7 @@
             const password = document.getElementById('login-password').value;
             
             if (!email || !password) {
-                alert('Por favor completa todos los campos');
+                showAlert('Por favor completa todos los campos', 'warning');
                 return;
             }
             
@@ -741,7 +788,7 @@
             
             if (user) {
                 if (user.status !== 'active') {
-                    alert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.');
+                    showAlert('Tu cuenta está pendiente de aprobación o ha sido desactivada. Contacta al administrador.', 'warning');
                     return;
                 }
                 
@@ -751,7 +798,7 @@
                 initializeApp();
             } else {
                 console.log('Credenciales incorrectas');
-                alert('Email o contraseña incorrectos');
+                showAlert('Email o contraseña incorrectos', 'danger');
             }
         }
 
@@ -762,24 +809,24 @@
             const confirmPassword = document.getElementById('register-confirm-password').value;
             
             if (!name || !email || !password || !confirmPassword) {
-                alert('Por favor completa todos los campos');
+                showAlert('Por favor completa todos los campos', 'warning');
                 return;
             }
             
             if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
+                showAlert('Las contraseñas no coinciden', 'warning');
                 return;
             }
             
             if (password.length < 6) {
-                alert('La contraseña debe tener al menos 6 caracteres');
+                showAlert('La contraseña debe tener al menos 6 caracteres', 'warning');
                 return;
             }
             
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
             if (users.find(u => u.email === email)) {
-                alert('Ya existe un usuario con este email');
+                showAlert('Ya existe un usuario con este email', 'warning');
                 return;
             }
             
@@ -797,7 +844,7 @@
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
             
-            alert('Cuenta creada exitosamente. Debes esperar la aprobación del administrador para acceder al sistema.');
+            showAlert('Cuenta creada exitosamente. Debes esperar la aprobación del administrador para acceder al sistema.', 'success');
             toggleAuthForm();
         }
 
@@ -922,7 +969,8 @@
             const filterSpaSelect = document.getElementById('filter-spa');
             filterSpaSelect.innerHTML = '<option value="all">Todos los Spas</option>';
             
-            allSpas.forEach(spa => {
+            // Solo mostrar los spas asignados al usuario
+            userSpas.forEach(spa => {
                 const option = document.createElement('option');
                 option.value = spa.id;
                 option.textContent = spa.name;
@@ -1161,7 +1209,7 @@
             const notes = document.getElementById('session-notes').value;
             
             if (!spaId || !date || !totalHours || !pricePerHour) {
-                alert('Por favor completa todos los campos obligatorios');
+                showAlert('Por favor completa todos los campos obligatorios', 'warning');
                 return;
             }
             
@@ -1195,7 +1243,7 @@
             // Limpiar formulario
             resetSessionForm();
             
-            alert('Sesión registrada exitosamente');
+            showAlert('Sesión registrada exitosamente', 'success');
         }
 
         function resetSessionForm() {
@@ -1254,7 +1302,7 @@
                 loadSessions();
                 loadHistory();
                 
-                alert('Sesión eliminada exitosamente');
+                showAlert('Sesión eliminada exitosamente', 'success');
             }
         }
 
@@ -1302,12 +1350,12 @@
             const confirmPassword = document.getElementById('profile-confirm-password').value;
             
             if (!name || !email) {
-                alert('Por favor completa todos los campos obligatorios');
+                showAlert('Por favor completa todos los campos obligatorios', 'warning');
                 return;
             }
             
             if (password && password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
+                showAlert('Las contraseñas no coinciden', 'warning');
                 return;
             }
             
@@ -1319,7 +1367,7 @@
                 // Verificar si el email ya está en uso por otro usuario
                 const emailExists = users.find(u => u.email === email && u.id !== currentUser.id);
                 if (emailExists) {
-                    alert('Ya existe un usuario con este email');
+                    showAlert('Ya existe un usuario con este email', 'warning');
                     return;
                 }
                 
@@ -1348,7 +1396,7 @@
                 document.getElementById('profile-password').value = '';
                 document.getElementById('profile-confirm-password').value = '';
                 
-                alert('Perfil actualizado exitosamente');
+                showAlert('Perfil actualizado exitosamente', 'success');
             }
         }
 
@@ -1386,84 +1434,83 @@
             });
         }
 
-        function showAddSpaModal() {
-            document.getElementById('add-spa-form').reset();
-            new bootstrap.Modal(document.getElementById('addSpaModal')).show();
+        function editSpa(spaId) {
+            const spa = allSpas.find(s => s.id === spaId);
+            if (!spa) return;
+            
+            // Llenar formulario con datos del spa
+            document.getElementById('spa-id').value = spa.id;
+            document.getElementById('spa-name').value = spa.name;
+            document.getElementById('spa-address').value = spa.address;
+            document.getElementById('spa-phone').value = spa.phone;
+            document.getElementById('spa-base-price').value = spa.basePrice;
+            
+            // Cambiar título del formulario
+            document.getElementById('spa-form-title').textContent = 'Editar Spa';
+            
+            // Mostrar botón de cancelar
+            document.getElementById('cancel-spa-btn').classList.remove('d-none');
+            
+            // Desplazar hacia el formulario
+            document.getElementById('spa-form').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function addSpa() {
+        function saveSpa() {
+            const id = document.getElementById('spa-id').value;
             const name = document.getElementById('spa-name').value;
             const address = document.getElementById('spa-address').value;
             const phone = document.getElementById('spa-phone').value;
             const basePrice = document.getElementById('spa-base-price').value;
             
             if (!name || !address || !phone || !basePrice) {
-                alert('Por favor completa todos los campos');
+                showAlert('Por favor completa todos los campos', 'warning');
                 return;
             }
             
-            const newSpa = {
-                id: generateId(),
-                name: name,
-                address: address,
-                phone: phone,
-                basePrice: parseFloat(basePrice),
-                createdAt: new Date().toISOString()
-            };
-            
-            // Guardar en localStorage
             const spas = JSON.parse(localStorage.getItem('spas') || '[]');
-            spas.push(newSpa);
-            localStorage.setItem('spas', JSON.stringify(spas));
             
-            // Cerrar modal
-            bootstrap.Modal.getInstance(document.getElementById('addSpaModal')).hide();
+            if (id) {
+                // Editar spa existente
+                const spaIndex = spas.findIndex(s => s.id === id);
+                if (spaIndex !== -1) {
+                    spas[spaIndex] = {
+                        ...spas[spaIndex],
+                        name: name,
+                        address: address,
+                        phone: phone,
+                        basePrice: parseFloat(basePrice)
+                    };
+                    
+                    localStorage.setItem('spas', JSON.stringify(spas));
+                    showAlert('Spa actualizado exitosamente', 'success');
+                }
+            } else {
+                // Agregar nuevo spa
+                const newSpa = {
+                    id: generateId(),
+                    name: name,
+                    address: address,
+                    phone: phone,
+                    basePrice: parseFloat(basePrice),
+                    createdAt: new Date().toISOString()
+                };
+                
+                spas.push(newSpa);
+                localStorage.setItem('spas', JSON.stringify(spas));
+                showAlert('Spa agregado exitosamente', 'success');
+            }
             
             // Actualizar datos
             loadAllSpas();
             loadSpaManagement();
-            
-            alert('Spa agregado exitosamente');
+            resetSpaForm();
         }
 
-        function editSpa(spaId) {
-            const spa = allSpas.find(s => s.id === spaId);
-            if (!spa) return;
-            
-            // Implementar edición de spa
-            const newName = prompt('Nuevo nombre del spa:', spa.name);
-            if (newName === null) return;
-            
-            const newAddress = prompt('Nueva dirección:', spa.address);
-            if (newAddress === null) return;
-            
-            const newPhone = prompt('Nuevo teléfono:', spa.phone);
-            if (newPhone === null) return;
-            
-            const newBasePrice = prompt('Nuevo precio base:', spa.basePrice);
-            if (newBasePrice === null) return;
-            
-            // Actualizar en localStorage
-            const spas = JSON.parse(localStorage.getItem('spas') || '[]');
-            const spaIndex = spas.findIndex(s => s.id === spaId);
-            
-            if (spaIndex !== -1) {
-                spas[spaIndex] = {
-                    ...spas[spaIndex],
-                    name: newName,
-                    address: newAddress,
-                    phone: newPhone,
-                    basePrice: parseFloat(newBasePrice)
-                };
-                
-                localStorage.setItem('spas', JSON.stringify(spas));
-                
-                // Actualizar datos
-                loadAllSpas();
-                loadSpaManagement();
-                
-                alert('Spa actualizado exitosamente');
-            }
+        function resetSpaForm() {
+            document.getElementById('spa-form').reset();
+            document.getElementById('spa-id').value = '';
+            document.getElementById('spa-form-title').textContent = 'Agregar Nuevo Spa';
+            document.getElementById('cancel-spa-btn').classList.add('d-none');
         }
 
         function deleteSpa(spaId) {
@@ -1473,7 +1520,7 @@
                 const spaSessions = sessionsData.filter(s => s.spaId === spaId);
                 
                 if (spaSessions.length > 0) {
-                    alert('No se puede eliminar el spa porque tiene sesiones asociadas. Elimine primero las sesiones.');
+                    showAlert('No se puede eliminar el spa porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
                     return;
                 }
                 
@@ -1482,7 +1529,7 @@
                 const usersWithSpa = users.filter(u => u.spas && u.spas.includes(spaId));
                 
                 if (usersWithSpa.length > 0) {
-                    alert('No se puede eliminar el spa porque hay usuarios asignados a él. Reasigne primero los usuarios.');
+                    showAlert('No se puede eliminar el spa porque hay usuarios asignados a él. Reasigne primero los usuarios.', 'warning');
                     return;
                 }
                 
@@ -1495,7 +1542,7 @@
                 loadAllSpas();
                 loadSpaManagement();
                 
-                alert('Spa eliminado exitosamente');
+                showAlert('Spa eliminado exitosamente', 'success');
             }
         }
 
@@ -1585,7 +1632,7 @@
             const status = document.getElementById('add-user-status').value;
             
             if (!name || !email || !password) {
-                alert('Por favor completa todos los campos obligatorios');
+                showAlert('Por favor completa todos los campos obligatorios', 'warning');
                 return;
             }
             
@@ -1598,7 +1645,7 @@
             // Verificar si el usuario ya existe
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             if (users.find(u => u.email === email)) {
-                alert('Ya existe un usuario con este email');
+                showAlert('Ya existe un usuario con este email', 'warning');
                 return;
             }
             
@@ -1623,7 +1670,7 @@
             loadAllUsers();
             loadUserManagement();
             
-            alert('Usuario creado exitosamente');
+            showAlert('Usuario creado exitosamente', 'success');
         }
 
         function editUser(userId) {
@@ -1665,7 +1712,7 @@
             const status = document.getElementById('edit-user-status').value;
             
             if (!name || !email) {
-                alert('Por favor completa todos los campos obligatorios');
+                showAlert('Por favor completa todos los campos obligatorios', 'warning');
                 return;
             }
             
@@ -1683,7 +1730,7 @@
                 // Verificar si el email ya está en uso por otro usuario
                 const emailExists = users.find(u => u.email === email && u.id !== userId);
                 if (emailExists) {
-                    alert('Ya existe un usuario con este email');
+                    showAlert('Ya existe un usuario con este email', 'warning');
                     return;
                 }
                 
@@ -1705,7 +1752,7 @@
                 loadAllUsers();
                 loadUserManagement();
                 
-                alert('Usuario actualizado exitosamente');
+                showAlert('Usuario actualizado exitosamente', 'success');
             }
         }
 
@@ -1713,7 +1760,7 @@
             if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
                 // No permitir eliminar el propio usuario
                 if (userId === currentUser.id) {
-                    alert('No puedes eliminar tu propio usuario');
+                    showAlert('No puedes eliminar tu propio usuario', 'warning');
                     return;
                 }
                 
@@ -1722,7 +1769,7 @@
                 const userSessions = sessionsData.filter(s => s.userId === userId);
                 
                 if (userSessions.length > 0) {
-                    alert('No se puede eliminar el usuario porque tiene sesiones asociadas. Elimine primero las sesiones.');
+                    showAlert('No se puede eliminar el usuario porque tiene sesiones asociadas. Elimine primero las sesiones.', 'warning');
                     return;
                 }
                 
@@ -1735,7 +1782,7 @@
                 loadAllUsers();
                 loadUserManagement();
                 
-                alert('Usuario eliminado exitosamente');
+                showAlert('Usuario eliminado exitosamente', 'success');
             }
         }
 
@@ -1747,6 +1794,35 @@
         function formatDate(dateString) {
             const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
             return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Sistema de notificaciones
+        function showAlert(message, type = 'success') {
+            const alertElement = document.getElementById('customAlert');
+            const messageElement = document.getElementById('alert-message');
+            
+            // Configurar tipo de alerta
+            alertElement.className = `custom-alert alert alert-${type}`;
+            messageElement.textContent = message;
+            
+            // Mostrar alerta
+            alertElement.classList.remove('d-none');
+            setTimeout(() => {
+                alertElement.classList.add('show');
+            }, 10);
+            
+            // Ocultar automáticamente después de 5 segundos
+            setTimeout(() => {
+                hideAlert();
+            }, 5000);
+        }
+
+        function hideAlert() {
+            const alertElement = document.getElementById('customAlert');
+            alertElement.classList.remove('show');
+            setTimeout(() => {
+                alertElement.classList.add('d-none');
+            }, 300);
         }
     </script>
 </body>
