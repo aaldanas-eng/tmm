@@ -501,6 +501,7 @@
                                                 <th>Precio/Hora</th>
                                                 <th>Total</th>
                                                 <th>Coche</th>
+                                                <th id="user-column-header" class="admin-only">Usuario</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
@@ -1378,13 +1379,22 @@
             }
         }
 
-        // FUNCIÓN LOADHISTORY
+        // FUNCIÓN LOADHISTORY - MODIFICADA PARA MOSTRAR USUARIO SI ES ADMIN
         function loadHistory() {
             const tableBody = document.getElementById('history-table-body');
+            const userColumnHeader = document.getElementById('user-column-header');
+            
+            // Mostrar/ocultar columna de usuario según el rol
+            if (currentUser.role === 'admin') {
+                userColumnHeader.style.display = 'table-cell';
+            } else {
+                userColumnHeader.style.display = 'none';
+            }
+            
             tableBody.innerHTML = '';
             
             if (sessions.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center">No hay sesiones registradas</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No hay sesiones registradas</td></tr>';
                 return;
             }
             
@@ -1392,6 +1402,9 @@
                 const carBadge = session.car === 'si' ? 
                     '<span class="badge bg-success car-badge">Sí</span>' : 
                     '<span class="badge bg-secondary car-badge">No</span>';
+                
+                const userCell = currentUser.role === 'admin' ? 
+                    `<td>${session.user_name}</td>` : '';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -1401,6 +1414,7 @@
                     <td>€${parseFloat(session.price_per_hour).toFixed(2)}/h</td>
                     <td>€${parseFloat(session.total_amount).toFixed(2)}</td>
                     <td>${carBadge}</td>
+                    ${userCell}
                     <td>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteSession('${session.id}')">
                             <i class="bi bi-trash"></i>
@@ -1586,22 +1600,390 @@
             showAlert('Perfil actualizado correctamente', 'success');
         }
 
-        // FUNCIONES DE ADMINISTRACIÓN (simplificadas para demo)
+        // FUNCIONES DE ADMINISTRACIÓN - IMPLEMENTADAS
         function loadSpaManagement() {
-            // Implementación simplificada para demo
             const tableBody = document.getElementById('spa-table-body');
-            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Funcionalidad de administración de spas</td></tr>';
+            tableBody.innerHTML = '';
+            
+            if (allSpas.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay spas registrados</td></tr>';
+                return;
+            }
+            
+            allSpas.forEach(spa => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${spa.name}</td>
+                    <td>${spa.address}</td>
+                    <td>${spa.phone}</td>
+                    <td>€${parseFloat(spa.base_price).toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editSpa('${spa.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSpa('${spa.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function saveSpa() {
+            const spaId = document.getElementById('spa-id').value;
+            const name = document.getElementById('spa-name').value;
+            const address = document.getElementById('spa-address').value;
+            const phone = document.getElementById('spa-phone').value;
+            const basePrice = document.getElementById('spa-base-price').value;
+            
+            if (!name || !address || !phone || !basePrice) {
+                showAlert('Completa todos los campos obligatorios', 'warning');
+                return;
+            }
+            
+            const spaData = {
+                name: name,
+                address: address,
+                phone: phone,
+                base_price: parseFloat(basePrice)
+            };
+            
+            toggleButtonLoading('save-spa-btn', true);
+            
+            try {
+                let result;
+                
+                if (spaId) {
+                    // Actualizar spa existente
+                    result = await supabase
+                        .from('spas')
+                        .update(spaData)
+                        .eq('id', spaId);
+                } else {
+                    // Crear nuevo spa
+                    result = await supabase
+                        .from('spas')
+                        .insert([spaData]);
+                }
+                
+                if (result.error) throw result.error;
+                
+                await loadAllSpas();
+                resetSpaForm();
+                loadSpaManagement();
+                
+                showAlert(spaId ? 'Spa actualizado exitosamente' : 'Spa creado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error guardando spa:', error);
+                showAlert('Error al guardar el spa', 'danger');
+            } finally {
+                toggleButtonLoading('save-spa-btn', false);
+            }
+        }
+
+        async function editSpa(spaId) {
+            const spa = allSpas.find(s => s.id === spaId);
+            
+            if (!spa) {
+                showAlert('Spa no encontrado', 'warning');
+                return;
+            }
+            
+            document.getElementById('spa-id').value = spa.id;
+            document.getElementById('spa-name').value = spa.name;
+            document.getElementById('spa-address').value = spa.address;
+            document.getElementById('spa-phone').value = spa.phone;
+            document.getElementById('spa-base-price').value = spa.base_price;
+            
+            document.getElementById('spa-form-title').textContent = 'Editar Spa';
+        }
+
+        async function deleteSpa(spaId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este spa?')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('spas')
+                    .delete()
+                    .eq('id', spaId);
+                
+                if (error) throw error;
+                
+                await loadAllSpas();
+                loadSpaManagement();
+                showAlert('Spa eliminado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error eliminando spa:', error);
+                showAlert('Error al eliminar el spa', 'danger');
+            }
+        }
+
+        function resetSpaForm() {
+            document.getElementById('spa-form').reset();
+            document.getElementById('spa-id').value = '';
+            document.getElementById('spa-form-title').textContent = 'Agregar Nuevo Spa';
         }
 
         function loadUserManagement() {
-            // Implementación simplificada para demo
             const tableBody = document.getElementById('user-table-body');
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Funcionalidad de administración de usuarios</td></tr>';
+            tableBody.innerHTML = '';
+            
+            if (allUsers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>';
+                return;
+            }
+            
+            allUsers.forEach(user => {
+                // Obtener nombres de spas asignados
+                let spasNames = 'Ninguno';
+                if (user.spas && user.spas.length > 0) {
+                    const userSpasList = allSpas.filter(spa => user.spas.includes(spa.id));
+                    spasNames = userSpasList.map(spa => spa.name).join(', ');
+                }
+                
+                const statusBadge = user.status === 'active' ? 
+                    '<span class="badge bg-success">Activo</span>' : 
+                    user.status === 'inactive' ? 
+                    '<span class="badge bg-danger">Inactivo</span>' : 
+                    '<span class="badge bg-warning">Pendiente</span>';
+                
+                const roleBadge = user.role === 'admin' ? 
+                    '<span class="badge bg-primary">Admin</span>' : 
+                    '<span class="badge bg-secondary">Usuario</span>';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${roleBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>${spasNames}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser('${user.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
 
         function showAddUserModal() {
-            // Implementación simplificada para demo
-            showAlert('Funcionalidad de agregar usuario', 'info');
+            // Limpiar formulario
+            document.getElementById('add-user-form').reset();
+            
+            // Cargar spas en checkboxes
+            const spasContainer = document.getElementById('add-user-spas-checkboxes');
+            spasContainer.innerHTML = '';
+            
+            allSpas.forEach(spa => {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'form-check';
+                checkbox.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${spa.id}" id="add-spa-${spa.id}">
+                    <label class="form-check-label" for="add-spa-${spa.id}">
+                        ${spa.name}
+                    </label>
+                `;
+                spasContainer.appendChild(checkbox);
+            });
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+            modal.show();
+        }
+
+        async function addUser() {
+            const name = document.getElementById('add-user-name').value;
+            const email = document.getElementById('add-user-email').value;
+            const password = document.getElementById('add-user-password').value;
+            const confirmPassword = document.getElementById('add-user-confirm-password').value;
+            const role = document.getElementById('add-user-role').value;
+            const status = document.getElementById('add-user-status').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showAlert('Completa todos los campos obligatorios', 'warning');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAlert('Las contraseñas no coinciden', 'warning');
+                return;
+            }
+            
+            // Obtener spas seleccionados
+            const selectedSpas = [];
+            document.querySelectorAll('#add-user-spas-checkboxes input:checked').forEach(checkbox => {
+                selectedSpas.push(checkbox.value);
+            });
+            
+            const userData = {
+                name: name,
+                email: email,
+                password: password, // En un caso real, esto debería estar encriptado
+                role: role,
+                status: status,
+                spas: selectedSpas
+            };
+            
+            toggleButtonLoading('add-user-btn', true);
+            
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([userData])
+                    .select();
+                
+                if (error) throw error;
+                
+                await loadAllUsers();
+                loadUserManagement();
+                
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                modal.hide();
+                
+                showAlert('Usuario creado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error creando usuario:', error);
+                showAlert('Error al crear el usuario', 'danger');
+            } finally {
+                toggleButtonLoading('add-user-btn', false);
+            }
+        }
+
+        async function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            
+            if (!user) {
+                showAlert('Usuario no encontrado', 'warning');
+                return;
+            }
+            
+            // Cargar datos en el formulario
+            document.getElementById('edit-user-id').value = user.id;
+            document.getElementById('edit-user-name').value = user.name;
+            document.getElementById('edit-user-email').value = user.email;
+            document.getElementById('edit-user-role').value = user.role;
+            document.getElementById('edit-user-status').value = user.status;
+            
+            // Cargar spas en checkboxes
+            const spasContainer = document.getElementById('edit-user-spas-checkboxes');
+            spasContainer.innerHTML = '';
+            
+            allSpas.forEach(spa => {
+                const isChecked = user.spas && user.spas.includes(spa.id);
+                const checkbox = document.createElement('div');
+                checkbox.className = 'form-check';
+                checkbox.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${spa.id}" id="edit-spa-${spa.id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="edit-spa-${spa.id}">
+                        ${spa.name}
+                    </label>
+                `;
+                spasContainer.appendChild(checkbox);
+            });
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            modal.show();
+        }
+
+        async function updateUser() {
+            const userId = document.getElementById('edit-user-id').value;
+            const name = document.getElementById('edit-user-name').value;
+            const email = document.getElementById('edit-user-email').value;
+            const password = document.getElementById('edit-user-password').value;
+            const confirmPassword = document.getElementById('edit-user-confirm-password').value;
+            const role = document.getElementById('edit-user-role').value;
+            const status = document.getElementById('edit-user-status').value;
+            
+            if (!name || !email) {
+                showAlert('Completa todos los campos obligatorios', 'warning');
+                return;
+            }
+            
+            if (password && password !== confirmPassword) {
+                showAlert('Las contraseñas no coinciden', 'warning');
+                return;
+            }
+            
+            // Obtener spas seleccionados
+            const selectedSpas = [];
+            document.querySelectorAll('#edit-user-spas-checkboxes input:checked').forEach(checkbox => {
+                selectedSpas.push(checkbox.value);
+            });
+            
+            const userData = {
+                name: name,
+                email: email,
+                role: role,
+                status: status,
+                spas: selectedSpas
+            };
+            
+            // Solo actualizar contraseña si se proporcionó una nueva
+            if (password) {
+                userData.password = password; // En un caso real, esto debería estar encriptado
+            }
+            
+            toggleButtonLoading('update-user-btn', true);
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update(userData)
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                await loadAllUsers();
+                loadUserManagement();
+                
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                modal.hide();
+                
+                showAlert('Usuario actualizado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error actualizando usuario:', error);
+                showAlert('Error al actualizar el usuario', 'danger');
+            } finally {
+                toggleButtonLoading('update-user-btn', false);
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                await loadAllUsers();
+                loadUserManagement();
+                showAlert('Usuario eliminado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error eliminando usuario:', error);
+                showAlert('Error al eliminar el usuario', 'danger');
+            }
         }
 
         // Inicializar la aplicación
