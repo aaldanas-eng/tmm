@@ -165,6 +165,16 @@
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
+        
+        .register-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .register-link:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -189,14 +199,51 @@
                             <div class="mb-3">
                                 <label for="login-password" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="login-password">
-                                      
+                                       
                             </div>
                             <button class="btn btn-primary w-100 mb-3" onclick="login()" id="login-btn">
                                 <span id="login-text">Login</span>
                                 <span id="login-spinner" class="loading-spinner d-none"></span>
                             </button>
+                            
+                            <div class="text-center mt-3">
+                                <p class="mb-0">Don't have an account? 
+                                    <a href="#" class="register-link" onclick="showRegisterForm()">Register here</a>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Registration Form (Initially Hidden) -->
+                        <div id="register-form" class="d-none">
+                            <h4 class="mb-3">Create Account</h4>
+                            <div class="mb-3">
+                                <label for="register-name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="register-name" 
+                                       placeholder="Enter your full name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="register-email" 
+                                       placeholder="your@email.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="register-password" 
+                                       placeholder="••••••••">
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="register-confirm-password" 
+                                       placeholder="••••••••">
+                            </div>
+                            <button class="btn btn-primary w-100 mb-3" onclick="register()" id="register-btn">
+                                <span id="register-text">Create Account</span>
+                                <span id="register-spinner" class="loading-spinner d-none"></span>
+                            </button>
                             <div class="text-center">
-                                <small class="text-muted">&nbsp;</small>
+                                <p class="mb-0">Already have an account? 
+                                    <a href="#" class="register-link" onclick="showLoginForm()">Login here</a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -870,6 +917,72 @@
             }
         }
 
+        // REGISTRATION FORM FUNCTIONS
+        function showRegisterForm() {
+            document.getElementById('login-form').classList.add('d-none');
+            document.getElementById('register-form').classList.remove('d-none');
+        }
+
+        function showLoginForm() {
+            document.getElementById('register-form').classList.add('d-none');
+            document.getElementById('login-form').classList.remove('d-none');
+        }
+
+        // REGISTER FUNCTION
+        async function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showAlert('Please complete all fields', 'warning');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'warning');
+                return;
+            }
+            
+            toggleButtonLoading('register-btn', true);
+            
+            try {
+                // Create user with pending status
+                const userData = {
+                    name: name,
+                    email: email,
+                    password: password, // In a real case, this should be encrypted
+                    role: 'user',
+                    status: 'pending',
+                    spas: []
+                };
+                
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([userData])
+                    .select();
+                
+                if (error) throw error;
+                
+                showAlert('Account created successfully! Your account is pending approval by an administrator.', 'success');
+                
+                // Switch back to login form
+                showLoginForm();
+                document.getElementById('register-form').reset();
+                
+            } catch (error) {
+                console.error('Error creating account:', error);
+                if (error.message.includes('duplicate key')) {
+                    showAlert('An account with this email already exists', 'warning');
+                } else {
+                    showAlert('Error creating account: ' + error.message, 'danger');
+                }
+            } finally {
+                toggleButtonLoading('register-btn', false);
+            }
+        }
+
         // LOGIN FUNCTIONALITY
         async function login() {
             const email = document.getElementById('login-email').value;
@@ -890,7 +1003,7 @@
                 });
                 
                 if (authError) {
-                    // If authentication fails, try with custom users table
+                    // If authentication fails, try with the custom users table
                     console.log('Auth failed, trying with users table:', authError.message);
                     await loginWithCustomUsers(email, password);
                     return;
@@ -915,17 +1028,28 @@
                 const { data: users, error } = await supabase
                     .from('users')
                     .select('*')
-                    .eq('email', email)
-                    .eq('status', 'active');
+                    .eq('email', email);
                 
                 if (error) throw error;
                 
                 if (users.length === 0) {
-                    showAlert('User not found or inactive', 'warning');
+                    showAlert('User not found', 'warning');
                     return;
                 }
                 
                 const user = users[0];
+                
+                // Check if user is pending
+                if (user.status === 'pending') {
+                    showAlert('Your account is pending approval by an administrator', 'warning');
+                    return;
+                }
+                
+                // Check if user is inactive
+                if (user.status === 'inactive') {
+                    showAlert('Your account has been deactivated. Please contact an administrator.', 'warning');
+                    return;
+                }
                 
                 // Verify password (in a real case this should be encrypted)
                 if (user.password !== password) {
@@ -956,8 +1080,7 @@
                 const { data: users, error } = await supabase
                     .from('users')
                     .select('*')
-                    .eq('id', userId)
-                    .eq('status', 'active');
+                    .eq('id', userId);
                 
                 if (error) throw error;
                 
@@ -967,6 +1090,18 @@
                 }
                 
                 const user = users[0];
+                
+                // Check if user is pending
+                if (user.status === 'pending') {
+                    showAlert('Your account is pending approval by an administrator', 'warning');
+                    return;
+                }
+                
+                // Check if user is inactive
+                if (user.status === 'inactive') {
+                    showAlert('Your account has been deactivated. Please contact an administrator.', 'warning');
+                    return;
+                }
                 
                 currentUser = {
                     id: user.id,
@@ -1034,6 +1169,15 @@
 
         function hideAlert() {
             document.getElementById('customAlert').classList.add('d-none');
+        }
+
+        // FORMAT DATE TO DD/MM/YYYY
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         }
 
         // INITIALIZE APPLICATION
@@ -1379,7 +1523,7 @@
             }
         }
 
-        // LOADHISTORY FUNCTION - MODIFIED TO SHOW USER IF ADMIN
+        // LOADHISTORY FUNCTION - MODIFIED TO SHOW USER IF ADMIN AND FORMAT DATE TO DD/MM/YYYY
         function loadHistory() {
             const tableBody = document.getElementById('history-table-body');
             const userColumnHeader = document.getElementById('user-column-header');
@@ -1408,7 +1552,7 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${new Date(session.date).toLocaleDateString('en-US')}</td>
+                    <td>${formatDate(session.date)}</td>
                     <td>${session.spa_name}</td>
                     <td>${session.total_hours} h</td>
                     <td>€${parseFloat(session.price_per_hour).toFixed(2)}/h</td>
@@ -1988,6 +2132,26 @@
 
         // Initialize application
         console.log('Thai Massage Manager loaded successfully');
+		
+		
     </script>
+<script>
+// Bloquear click derecho
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+// Bloquear teclas como F12, Ctrl+Shift+I, Ctrl+U, etc.
+document.addEventListener('keydown', function(event) {
+  if (
+    event.key === "F12" || 
+    (event.ctrlKey && event.shiftKey && event.key === "I") || 
+    (event.ctrlKey && event.shiftKey && event.key === "J") || 
+    (event.ctrlKey && event.key === "U") || 
+    (event.ctrlKey && event.shiftKey && event.key === "C")
+  ) {
+    event.preventDefault();
+    return false;
+  }
+});
+</script>	
 </body>
 </html>
