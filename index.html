@@ -514,10 +514,12 @@
                                             <input type="number" class="form-control" id="session-total-hours" 
                                                    min="0" max="24" step="0.5" placeholder="Hours worked" required>
                                         </div>
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label">Price per Hour (€)</label>
-                                            <input type="number" class="form-control" id="session-price" step="0.01" readonly>
-                                        </div>
+                                        <!-- En la sección de registro de sesión - MODIFICADO -->
+																				<div class="col-12 col-md-6">
+																				    <label class="form-label">Price per Hour (€)</label>
+																				    <input type="number" class="form-control" id="session-price" step="0.01" 
+																				           placeholder="Price will be set based on spa selection">
+																				</div>
                                     </div>
                                     <div class="row g-2 g-md-3 mt-2">
                                         <div class="col-12 col-md-6">
@@ -1456,53 +1458,79 @@
         }
 
         // SESSION FUNCTIONS
-        function loadSessionForm() {
-            const spaSelect = document.getElementById('session-spa');
-            spaSelect.innerHTML = '<option value="">Select spa</option>';
-            
-            userSpas.forEach(spa => {
-                const option = document.createElement('option');
-                option.value = spa.id;
-                option.textContent = spa.name;
-                option.dataset.price = spa.base_price;
-                spaSelect.appendChild(option);
-            });
-            
-            // Set current date
-            document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
-            
-            // Event listener for price change
-            spaSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.dataset.price) {
-                    document.getElementById('session-price').value = selectedOption.dataset.price;
-                }
-            });
-            
-            // Set first spa if exists
-            if (userSpas.length > 0) {
-                spaSelect.value = userSpas[0].id;
-                document.getElementById('session-price').value = userSpas[0].base_price;
-            }
-            
-            // Load users for admin
-            if (currentUser.role === 'admin') {
-                const userSelect = document.getElementById('session-user');
-                userSelect.innerHTML = '<option value="">Select user</option>';
-                
-                allUsers.forEach(user => {
-                    if (user.status === 'active') {
-                        const option = document.createElement('option');
-                        option.value = user.id;
-                        option.textContent = user.name;
-                        userSelect.appendChild(option);
-                    }
-                });
-                
-                // Set current user as default
-                userSelect.value = currentUser.id;
-            }
-        }
+				// En la función loadSessionForm() - MODIFICADA
+				function loadSessionForm() {
+				    const spaSelect = document.getElementById('session-spa');
+				    const priceInput = document.getElementById('session-price');
+				    spaSelect.innerHTML = '<option value="">Select spa</option>';
+				    
+				    userSpas.forEach(spa => {
+				        const option = document.createElement('option');
+				        option.value = spa.id;
+				        option.textContent = spa.name;
+				        option.dataset.price = spa.base_price;
+				        spaSelect.appendChild(option);
+				    });
+				    
+				    // Set current date
+				    document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+				    
+				    // Event listener for price change - MODIFICADO
+				    spaSelect.addEventListener('change', function() {
+				        const selectedOption = this.options[this.selectedIndex];
+				        if (selectedOption.dataset.price) {
+				            const basePrice = parseFloat(selectedOption.dataset.price);
+				            priceInput.value = basePrice;
+				            
+				            // Si el precio base es 0, hacer el campo editable
+				            if (basePrice === 0) {
+				                priceInput.readOnly = false;
+				                priceInput.placeholder = "Enter price per hour";
+				                priceInput.title = "This spa has no base price. Please enter the price manually.";
+				            } else {
+				                priceInput.readOnly = true;
+				                priceInput.placeholder = "";
+				                priceInput.title = "Price is set by spa base price";
+				            }
+				        }
+				    });
+				    
+				    // Set first spa if exists
+				    if (userSpas.length > 0) {
+				        spaSelect.value = userSpas[0].id;
+				        const firstSpaPrice = parseFloat(userSpas[0].base_price);
+				        priceInput.value = firstSpaPrice;
+				        
+				        // Verificar si el primer spa tiene precio 0
+				        if (firstSpaPrice === 0) {
+				            priceInput.readOnly = false;
+				            priceInput.placeholder = "Enter price per hour";
+				            priceInput.title = "This spa has no base price. Please enter the price manually.";
+				        } else {
+				            priceInput.readOnly = true;
+				            priceInput.placeholder = "";
+				            priceInput.title = "Price is set by spa base price";
+				        }
+				    }
+				    
+				    // Load users for admin
+				    if (currentUser.role === 'admin') {
+				        const userSelect = document.getElementById('session-user');
+				        userSelect.innerHTML = '<option value="">Select user</option>';
+				        
+				        allUsers.forEach(user => {
+				            if (user.status === 'active') {
+				                const option = document.createElement('option');
+				                option.value = user.id;
+				                option.textContent = user.name;
+				                userSelect.appendChild(option);
+				            }
+				        });
+				        
+				        // Set current user as default
+				        userSelect.value = currentUser.id;
+				    }
+				}
 
         async function saveSession() {
             const spaId = document.getElementById('session-spa').value;
