@@ -206,7 +206,7 @@
                                 <input type="password" class="form-control" id="login-password">
                                        
                             </div>
-                            <button class="btn btn-primary w-100 mb-3" onclick="login()" id="login-btn">
+                            <button class="btn btn-primary w-100 mb-3" onclick="loginUser()" id="login-btn">
                                 <span id="login-text">Login</span>
                                 <span id="login-spinner" class="loading-spinner d-none"></span>
                             </button>
@@ -898,7 +898,7 @@
         const SUPABASE_URL = 'https://hkilwwjsibwygerjnrvy.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhraWx3d2pzaWJ3eWdlcmpucnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzODU5OTEsImV4cCI6MjA3ODk2MTk5MX0.KkoB09D7ucf13LQr2IrjcQtbJa2ZR238EPlZcdXrauk';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentUser = null;
         let userSpas = [];
@@ -922,7 +922,7 @@
         // CHECK EXISTING SESSION
         async function checkExistingSession() {
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
                 if (error) {
                     console.error('Error checking session:', error);
@@ -979,7 +979,7 @@
                     spas: []
                 };
                 
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .insert([userData])
                     .select();
@@ -1005,7 +1005,7 @@
         }
 
         // LOGIN FUNCTIONALITY
-        async function login() {
+        async function loginUser() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             
@@ -1018,7 +1018,7 @@
             
             try {
                 // First try authentication with Supabase Auth
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
@@ -1046,7 +1046,7 @@
         async function loginWithCustomUsers(email, password) {
             try {
                 // Find user in users table
-                const { data: users, error } = await supabase
+                const { data: users, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('email', email);
@@ -1098,7 +1098,7 @@
         // GET USER DATA
         async function getUserData(userId) {
             try {
-                const { data: users, error } = await supabase
+                const { data: users, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('id', userId);
@@ -1143,7 +1143,7 @@
         // LOGOUT
         async function logout() {
             try {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 currentUser = null;
                 
                 document.getElementById('app-screen').classList.add('d-none');
@@ -1599,7 +1599,7 @@
             toggleButtonLoading('save-session-btn', true);
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('sessions')
                     .insert([newSession])
                     .select();
@@ -1689,7 +1689,7 @@
             }
             
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('sessions')
                     .delete()
                     .eq('id', sessionId);
@@ -1768,7 +1768,7 @@
         // DATA LOADING FUNCTIONS
         async function loadAllSpas() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('spas')
                     .select('*')
                     .order('name');
@@ -1787,7 +1787,7 @@
             if (currentUser.role !== 'admin') return;
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .order('name');
@@ -1804,7 +1804,7 @@
 
         async function loadSessions() {
             try {
-                let query = supabase
+                let query = supabaseClient
                     .from('sessions')
                     .select('*');
                 
@@ -1914,13 +1914,13 @@
                 
                 if (spaId) {
                     // Update existing spa
-                    result = await supabase
+                    result = await supabaseClient
                         .from('spas')
                         .update(spaData)
                         .eq('id', spaId);
                 } else {
                     // Create new spa
-                    result = await supabase
+                    result = await supabaseClient
                         .from('spas')
                         .insert([spaData]);
                 }
@@ -1964,7 +1964,7 @@
             }
             
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('spas')
                     .delete()
                     .eq('id', spaId);
@@ -2095,7 +2095,7 @@
             toggleButtonLoading('add-user-btn', true);
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .insert([userData])
                     .select();
@@ -2197,7 +2197,7 @@
             toggleButtonLoading('update-user-btn', true);
             
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('users')
                     .update(userData)
                     .eq('id', userId);
@@ -2227,7 +2227,7 @@
             }
             
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('users')
                     .delete()
                     .eq('id', userId);
